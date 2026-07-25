@@ -27,6 +27,15 @@ ENTITLEMENTS  ?= $(APP_SOURCES)/Supporting/$(APP_NAME).entitlements
 # Empty by default: R-GATE-HARDENING fails on any exception not listed here. Add a key
 # only alongside an ADR or task entry saying why. `get-task-allow` is never allowlistable.
 HARDENING_ALLOW ?=
+
+# Signing. Empty until a Developer ID Application certificate exists — `make doctor`
+# reports readiness. SIGN_IDENTITY must be copied VERBATIM from
+# `security find-identity -v -p codesigning`, including any trailing punctuation in the
+# registered entity name (ADR-SWIFT-S06). NOTARY_PROFILE is a keychain profile created by
+# `xcrun notarytool store-credentials`.
+DEVELOPMENT_TEAM ?=
+SIGN_IDENTITY    ?=
+NOTARY_PROFILE   ?=
 # -----------------------------------------------------------------------------
 
 CONFIGURATION ?= Debug
@@ -78,6 +87,16 @@ doctor:
 	  if [ -z "$$miss" ]; then echo "OK ($$(echo $$inc | tr '\n' ' '))"; \
 	  else echo "MISSING from .swiftlint.yml included:$$miss"; \
 	       echo "              an unlisted path is NEVER linted — silently unenforced"; fi
+	@printf "signing     : "; \
+	  if security find-identity -v -p codesigning 2>/dev/null | grep -q "Developer ID Application"; \
+	  then echo "Developer ID Application present"; \
+	  else echo "NO Developer ID Application cert — R-GATE-SIGN stages 2-3 cannot pass"; \
+	       security find-identity -v -p codesigning 2>/dev/null \
+	         | sed -n 's/.*"\(Apple [A-Za-z]*\).*/                 have: \1 (dev\/App Store only)/p' | sort -u; fi
+	@printf "notary      : "; \
+	  if [ -n "$(NOTARY_PROFILE)" ] && xcrun notarytool history --keychain-profile "$(NOTARY_PROFILE)" >/dev/null 2>&1; \
+	  then echo "keychain profile '$(NOTARY_PROFILE)' works"; \
+	  else echo "NOT configured — xcrun notarytool store-credentials <name>"; fi
 	@echo "release     : NOT WIRED — see ADR-SWIFT-S06 for the required chain"
 
 guard-workspace:
@@ -220,6 +239,25 @@ install-hooks:
 ## clean: remove build products
 clean:
 	rm -rf "$(BUILD_DIR)"
+
+## notarize: zip -> notarytool submit --wait -> staple -> validate (ADR-SWIFT-S06)
+notarize: guard-bundle
+	@test -n "$(NOTARY_PROFILE)" || { \
+	  echo "error: NOTARY_PROFILE is empty. Create one first:"; \
+	  echo "       xcrun notarytool store-credentials <name> --key AuthKey_XXX.p8 --key-id XXX --issuer <uuid>"; \
+	  exit 1; }
+	@codesign -dvv "$(BUNDLE)" 2>&1 | grep -q "Authority=Developer ID Application" || { \
+	  echo "error: $(BUNDLE) is not signed with a Developer ID Application certificate."; \
+	  echo "       Apple Development and Apple Distribution certs are rejected by notarization."; \
+	  exit 1; }
+	@# ditto, not zip: zip flattens symlinks and drops extended attributes, and a bundle
+	@# flattened that way fails notarization or fails to launch.
+	ditto -c -k --keepParent "$(BUNDLE)" "$(BUILD_DIR)/$(APP_NAME).zip"
+	xcrun notarytool submit "$(BUILD_DIR)/$(APP_NAME).zip" \
+	      --keychain-profile "$(NOTARY_PROFILE)" --wait
+	@# Stapling is the step people skip; without it the app fails for offline users.
+	xcrun stapler staple "$(BUNDLE)"
+	$(MAKE) --no-print-directory validate
 
 ## release: NOT WIRED — the chain is specified in ADR-SWIFT-S06, not yet scripted
 release:
