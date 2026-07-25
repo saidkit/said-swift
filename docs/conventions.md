@@ -147,35 +147,21 @@ let handler: @Sendable (FileEvent) -> Void = { event in
 
 ### Bridging a callback API into a stream
 
-The recurring shape: a `Core/` service converts a callback framework into an `AsyncStream`; the feature consumes it on the main actor.
+The recurring shape in a system-level app: a `Core/` service (ADR-SWIFT-S04) wraps a callback-based framework, converts it into an `AsyncStream`, and the feature consumes it on the main actor.
 
-```swift
-actor LiveFileWatcher: FileWatcher {
-    func events(for url: URL) -> AsyncStream<FileEvent> {
-        AsyncStream { continuation in
-            let stream = /* FSEventStreamCreate — callback yields into continuation */
-            continuation.onTermination = { _ in /* stop + release */ }
-        }
-    }
-}
+**This starter ships no compiled example, so treat the shape below as unverified until your own code builds it.** That is not a formality — when this pattern was first genuinely compiled in a consuming project, it produced three errors an illustrative snippet had entirely hidden:
 
-@MainActor
-final class ConfigCoordinator {
-    private var watchTask: Task<Void, Never>?
+1. **Cocoa's observer token is not `Sendable`**, so it cannot be captured by the `@Sendable` `onTermination` closure. It needs an explicit box with a written justification (rule 4).
+2. **Under `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` the service is main-actor-isolated** unless `nonisolated` is written on it — silently defeating the bridge. See ADR-SWIFT-S03 rule 3.
+3. **`Task.cancel()` is nonisolated**, which is why it is callable from `deinit` on a `@MainActor` type; an isolated method would not be.
 
-    func start(watcher: some FileWatcher, url: URL) {
-        watchTask = Task { [weak self] in
-            for await event in await watcher.events(for: url) {
-                self?.state.apply(event)
-            }
-        }
-    }
+The shape:
 
-    deinit { watchTask?.cancel() }
-}
-```
+- a `nonisolated` service in `Core/<Service>/Live*.swift` returning `AsyncStream`, with the framework's teardown wired to `continuation.onTermination`
+- a `@MainActor` consumer holding the `Task` and cancelling it in `deinit`
+- a `Stub*` yielding a scripted sequence and calling `finish()`, so a consuming `for await` terminates instead of hanging a test
 
-**Anything you start, you own and cancel.** Tasks, `NotificationCenter` observers, `NSEvent` monitors, timers, event taps — stored, and torn down in `deinit` or an explicit `stop()`.
+**Anything you start, you own and cancel.** Tasks, `NotificationCenter` observers, `NSEvent` monitors, timers, event taps — stored, and torn down in `deinit` or an explicit `stop()`. Where the resource belongs to a stream, `continuation.onTermination` is the better home: cancelling the consuming task removes the observer, with no second lifetime to remember.
 
 ---
 

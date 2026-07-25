@@ -81,37 +81,17 @@ It inverts the *annotation direction*, not the architecture:
 
 ## The bridging pattern
 
-The recurring shape in a system-level app: a `Core/` service (ADR-SWIFT-S04) wraps a callback-based framework, converts it into an `AsyncStream`, and the feature consumes it on the main actor.
+The recurring shape in a system-level app: a `Core/` service (ADR-SWIFT-S04) wraps a callback-based framework, converts it into an `AsyncStream`, and the feature consumes it on the main actor. The unknown-thread callback is contained in one file; the feature sees a typed, cancellable, main-actor stream.
 
-```swift
-// Core/FileWatching/LiveFileWatcher.swift — the only file that knows about FSEvents
-actor LiveFileWatcher: FileWatcher {
-    func events(for url: URL) -> AsyncStream<FileEvent> {
-        AsyncStream { continuation in
-            let stream = /* FSEventStreamCreate … callback yields into continuation */
-            continuation.onTermination = { _ in /* FSEventStreamStop / Release */ }
-        }
-    }
-}
+**This starter ships no compiled example — treat the shape below as unverified until your own code builds it.** When the pattern was first genuinely compiled in a consuming project it produced three errors that a written example had concealed:
 
-// Features/Config/ConfigCoordinator.swift — main actor, no FSEvents knowledge
-@MainActor
-final class ConfigCoordinator {
-    private var watchTask: Task<Void, Never>?
+1. **The observer token is not `Sendable`** and cannot cross into the `@Sendable` `onTermination` closure — it needs an explicit box with a justification (rule 4).
+2. **The service is main-actor-isolated by default** under `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, silently negating the bridge, until `nonisolated` is written on it (rule 11, ADR-SWIFT-S03 rule 3).
+3. **`Task.cancel()` is nonisolated**, which is precisely why it can be called from `deinit` on a `@MainActor` consumer.
 
-    func start(watcher: some FileWatcher, url: URL) {
-        watchTask = Task { [weak self] in
-            for await event in await watcher.events(for: url) {
-                self?.state.apply(event)          // already on the main actor
-            }
-        }
-    }
+The shape: a `nonisolated` service in `Core/<Service>/Live*.swift` returning `AsyncStream` with the framework's teardown wired to `continuation.onTermination`; a `@MainActor` consumer owning the `Task` and cancelling it in `deinit`; a `Stub*` that yields a scripted sequence then calls `finish()`, so a consuming `for await` terminates rather than hanging a test.
 
-    deinit { watchTask?.cancel() }                // rule 8 + rule 9
-}
-```
-
-The unknown-thread callback is contained in one file; the feature sees a typed, cancellable, main-actor stream.
+Teardown belongs to the stream: cancelling the consuming task removes the observer, leaving no second lifetime to track (rule 9).
 
 ## Out of scope
 
