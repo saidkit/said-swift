@@ -20,6 +20,7 @@ APP_SOURCES   ?= $(APP_ROOT)/$(APP_NAME)
 WORKSPACE     ?= $(APP_ROOT)/$(APP_NAME).xcworkspace
 SCHEME        ?= $(APP_NAME)
 BUILD_DIR     ?= $(APP_ROOT)/build
+TEST_SOURCES  ?= $(APP_ROOT)/$(APP_NAME)Tests
 ENTITLEMENTS  ?= $(APP_SOURCES)/Supporting/$(APP_NAME).entitlements
 
 # Hardened-runtime exceptions this project has justified IN WRITING (ADR-SWIFT-S06).
@@ -29,8 +30,15 @@ HARDENING_ALLOW ?=
 # -----------------------------------------------------------------------------
 
 CONFIGURATION ?= Debug
-BUNDLE        ?= $(BUILD_DIR)/$(APP_NAME).app
+# xcodebuild defaults to a hashed DerivedData path, which would leave BUNDLE pointing at a
+# path that never exists — making the release gates permanently unreachable while appearing
+# configured. Pin the derived-data location so the artifact is findable and reproducible.
+DERIVED_DATA  ?= $(BUILD_DIR)
+BUNDLE        ?= $(DERIVED_DATA)/Build/Products/$(CONFIGURATION)/$(APP_NAME).app
 INFO_PLIST    ?= $(BUNDLE)/Contents/Info.plist
+# Test code is code: the ADR rules (no print, no force-unwrap, no ambient globals) apply
+# there too, and an unformatted test file drifts just as fast as any other.
+FORMAT_PATHS  := "$(APP_SOURCES)" $(shell [ -d "$(TEST_SOURCES)" ] && echo '"$(TEST_SOURCES)"')
 SWIFTLINT     ?= swiftlint
 SWIFTFORMAT   ?= xcrun swift-format
 
@@ -53,6 +61,7 @@ help:
 doctor:
 	@echo "app sources : $(APP_SOURCES) $$([ -d "$(APP_SOURCES)" ] && echo present || echo MISSING)"
 	@echo "workspace   : $(WORKSPACE) $$([ -d "$(WORKSPACE)" ] && echo present || echo MISSING)"
+	@echo "bundle      : $(BUNDLE) $$([ -d "$(BUNDLE)" ] && echo present || echo 'MISSING — run make build')"
 	@echo "entitlements: $(ENTITLEMENTS) $$([ -f "$(ENTITLEMENTS)" ] && echo present || echo MISSING)"
 	@echo "swiftlint   : $$(command -v $(SWIFTLINT) >/dev/null && $(SWIFTLINT) version || echo 'MISSING — brew bundle')"
 	@echo "swift-format: $$($(SWIFTFORMAT) --version 2>/dev/null || echo 'MISSING — ships with Xcode')"
@@ -63,11 +72,12 @@ doctor:
 	  if [ "$$(git config --get core.hooksPath 2>/dev/null)" = "scripts/hooks" ]; then echo "installed"; \
 	  else echo "NOT installed — run 'make install-hooks'"; fi
 	@printf "lint scope  : "; \
-	  swiftlint_inc=$$(awk '/^included:/{f=1;next} /^[a-z_]+:/{f=0} f && /^  - /{gsub(/^  - /,"");print;exit}' .swiftlint.yml); \
-	  app_src="$(APP_SOURCES)"; app_src="$${app_src#./}"; \
-	  if [ "$$swiftlint_inc" = "$$app_src" ]; then echo "OK ($$swiftlint_inc)"; \
-	  else echo "MISMATCH — .swiftlint.yml included: '$$swiftlint_inc' vs APP_SOURCES '$$app_src'"; \
-	       echo "              a stale included: path lints ZERO files and passes vacuously"; fi
+	  inc=$$(awk '/^included:/{f=1;next} /^[a-z_]+:/{f=0} f && /^  - /{gsub(/^  - /,"");print}' .swiftlint.yml); \
+	  miss=""; for want in "$(APP_SOURCES)" "$(TEST_SOURCES)"; do want="$${want#./}"; \
+	    echo "$$inc" | grep -qx "$$want" || miss="$$miss $$want"; done; \
+	  if [ -z "$$miss" ]; then echo "OK ($$(echo $$inc | tr '\n' ' '))"; \
+	  else echo "MISSING from .swiftlint.yml included:$$miss"; \
+	       echo "              an unlisted path is NEVER linted — silently unenforced"; fi
 	@echo "release     : NOT WIRED — see ADR-SWIFT-S06 for the required chain"
 
 guard-workspace:
@@ -83,12 +93,12 @@ guard-bundle:
 ## build: compile the app — R-GATE-BUILD (Swift has no separate typecheck; the build is it)
 build: guard-workspace
 	xcodebuild -workspace "$(WORKSPACE)" -scheme "$(SCHEME)" \
-	           -configuration $(CONFIGURATION) build
+	           -configuration $(CONFIGURATION) -derivedDataPath "$(DERIVED_DATA)" build
 
 ## test: run the unit-test suite — R-GATE-TEST
 test: guard-workspace
 	xcodebuild -workspace "$(WORKSPACE)" -scheme "$(SCHEME)" \
-	           -configuration $(CONFIGURATION) test
+	           -configuration $(CONFIGURATION) -derivedDataPath "$(DERIVED_DATA)" test
 
 ## lint: SwiftLint, warnings as errors — R-GATE-LINT
 lint:
@@ -96,16 +106,21 @@ lint:
 	  $(SWIFTLINT) lint --strict --config .swiftlint.yml; \
 	else echo "no Swift sources at $(APP_SOURCES) yet — R-GATE-LINT vacuous, say so in ### Fix"; fi
 
+# NOTE: swift-format's `--recursive` renders each discovered file's display path by
+# naively stripping the CWD string prefix, then tries to open THAT. When the target's
+# absolute path merely *starts with* the CWD string without being inside it (cwd
+# `…/proj`, target `…/proj-src/…`), every path is mangled and every file fails to open.
+# Enumerating with `find` and passing explicit paths avoids the code path entirely.
 ## format-check: verify formatting without writing — R-GATE-FORMAT
 format-check:
 	@if [ -d "$(APP_SOURCES)" ]; then \
-	  $(SWIFTFORMAT) lint --strict --recursive --configuration .swift-format "$(APP_SOURCES)"; \
+	  find $(FORMAT_PATHS) -name '*.swift' -print0 | xargs -0 $(SWIFTFORMAT) lint --strict --configuration .swift-format; \
 	else echo "no Swift sources at $(APP_SOURCES) yet — R-GATE-FORMAT vacuous, say so in ### Fix"; fi
 
 ## format: rewrite sources in place (what your editor should do on save)
 format:
 	@if [ -d "$(APP_SOURCES)" ]; then \
-	  $(SWIFTFORMAT) format --in-place --recursive --configuration .swift-format "$(APP_SOURCES)"; \
+	  find $(FORMAT_PATHS) -name '*.swift' -print0 | xargs -0 $(SWIFTFORMAT) format --in-place --configuration .swift-format; \
 	else echo "no Swift sources at $(APP_SOURCES) yet — nothing to format"; fi
 
 ## tooling-check: assert swift-format and SwiftLint agree — run after changing either config
@@ -114,19 +129,41 @@ tooling-check:
 
 ## sign-check: signature / Gatekeeper / staple / entitlements — R-GATE-SIGN
 sign-check: guard-bundle
-	codesign --verify --deep --strict --verbose=2 "$(BUNDLE)"
-	spctl --assess --type execute --verbose=4 "$(BUNDLE)"
-	xcrun stapler validate "$(BUNDLE)"
-	@# Entitlements are ASSERTED, not printed: a gate that only prints cannot fail.
-	@test -f "$(ENTITLEMENTS)" || { \
-	  echo "error: $(ENTITLEMENTS) not found — R-GATE-SIGN cannot assert entitlements"; exit 1; }
-	@if diff -u <(xmllint --c14n --format "$(ENTITLEMENTS)" 2>/dev/null) \
-	            <(codesign -d --entitlements :- "$(BUNDLE)" 2>/dev/null | xmllint --c14n --format -); \
-	 then echo "  entitlements match $(ENTITLEMENTS)"; \
-	 else echo "error: shipped entitlements differ from $(ENTITLEMENTS) (diff above)"; exit 1; fi
+	@# Stage-wise, so a failure names WHICH stage failed and whether it needs Apple.
+	@# Stages 1 and 4 work with any identity (including ad-hoc). Stages 2 and 3 CANNOT
+	@# pass without a Developer ID + notarization — an ad-hoc or self-signed build is
+	@# expected to fail them, and that is not a defect in the gate.
+	@fail=0; \
+	printf "  1/4 signature valid ............ "; \
+	if codesign --verify --deep --strict "$(BUNDLE)" 2>/dev/null; then echo "PASS"; \
+	else echo "FAIL"; codesign --verify --deep --strict --verbose=2 "$(BUNDLE)" || true; fail=1; fi; \
+	printf "  2/4 Gatekeeper accepts ........ "; \
+	if spctl --assess --type execute "$(BUNDLE)" 2>/dev/null; then echo "PASS"; \
+	else echo "FAIL  (needs Developer ID + notarization)"; fail=1; fi; \
+	printf "  3/4 notarization stapled ...... "; \
+	if xcrun stapler validate "$(BUNDLE)" >/dev/null 2>&1; then echo "PASS"; \
+	else echo "FAIL  (needs notarization; unstapled fails for offline users)"; fail=1; fi; \
+	printf "  4/4 entitlements as reviewed .. "; \
+	if [ ! -f "$(ENTITLEMENTS)" ]; then echo "FAIL  ($(ENTITLEMENTS) not found)"; fail=1; \
+	elif diff <(xmllint --nonet --c14n --format "$(ENTITLEMENTS)" 2>/dev/null) \
+	           <(codesign -d --entitlements :- "$(BUNDLE)" 2>/dev/null | xmllint --nonet --c14n --format - 2>/dev/null) >/dev/null; \
+	then echo "PASS"; \
+	else echo "FAIL  (shipped entitlements differ from the reviewed file)"; \
+	     diff -u <(xmllint --nonet --c14n --format "$(ENTITLEMENTS)" 2>/dev/null) \
+	             <(codesign -d --entitlements :- "$(BUNDLE)" 2>/dev/null | xmllint --nonet --c14n --format - 2>/dev/null) || true; fail=1; fi; \
+	if [ $$fail -ne 0 ]; then exit 1; fi
 
-## hardening: get-task-allow / runtime flag / exceptions / ATS — R-GATE-HARDENING
+## hardening: get-task-allow / runtime flag / exceptions / ATS — R-GATE-HARDENING (release tier)
 hardening: guard-bundle
+	@# A Debug bundle can NEVER pass this gate, by construction: Xcode's debug-dylib layout
+	@# (ENABLE_DEBUG_DYLIB) ships a shim plus *.debug.dylib/__preview.dylib and is signed
+	@# WITHOUT hardened runtime — library validation would block loading them. Say that,
+	@# rather than reporting a misleading "hardened runtime is not enabled".
+	@if [ -e "$(BUNDLE)/Contents/MacOS/$(APP_NAME).debug.dylib" ]; then \
+	  echo "error: $(BUNDLE) is a DEBUG build (debug-dylib layout present)."; \
+	  echo "       R-GATE-HARDENING is a release-tier gate — a Debug bundle cannot pass it."; \
+	  echo "       Run: make build CONFIGURATION=Release && make hardening CONFIGURATION=Release"; \
+	  exit 1; fi
 	@ents=$$(codesign -d --entitlements :- "$(BUNDLE)" 2>/dev/null || true); fail=0; \
 	if echo "$$ents" | grep -q 'get-task-allow'; then \
 	  echo "error: com.apple.security.get-task-allow is present in the shipped bundle."; \

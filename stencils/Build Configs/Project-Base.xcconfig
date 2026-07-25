@@ -8,6 +8,11 @@
 // Rationale: ADR-SWIFT-S06 (all settings in xcconfig, never the target editor) and
 // ADR-SWIFT-S07 (the concurrency posture these flags enforce).
 //
+//
+// ⚠ xcconfig comments are `//`. A line starting with `#` is a PREPROCESSOR DIRECTIVE —
+//   `# some note` fails the build with "unsupported preprocessor directive". This bites
+//   hardest in a Release-only file, which you parse least often.
+//
 // ⚠ Every value below was checked against Swift 6.3.3 / Xcode 26.6. Re-check after a
 //   toolchain bump — see the SILENT NO-OP warning under upcoming features.
 
@@ -53,6 +58,11 @@ SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES
 // Opt-in memory-safety checking (Swift 6.2+). Surfaces unsafe constructs via @safe/@unsafe.
 // Worth enabling on a new codebase; expect noise on one wrapping C APIs.
 // SWIFT_STRICT_MEMORY_SAFETY = YES
+
+// ---- Testability ----------------------------------------------------------------
+// Required for `@testable import`. Xcode's project template sets this implicitly; a
+// pure-xcconfig setup must state it, or the test target cannot see the app module.
+ENABLE_TESTABILITY[config=Debug] = YES
 
 // ---- Diagnostics ----------------------------------------------------------------
 

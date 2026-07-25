@@ -115,9 +115,19 @@ them (ADR-SWIFT-S10).
   diff <(xmllint --c14n --format <entitlements-file>) \
        <(codesign -d --entitlements :- <bundle> | xmllint --c14n --format -)
   ```
-  A mismatch means the shipped entitlements are not the reviewed ones. Separately, every
-  entry in the source file must trace to a capability the app actually ships — that judgment
-  is `R-GATE-DEPS`, not this rule.
+  The gate reports **per stage**, because the stages have different prerequisites:
+
+  | Stage | Needs | Verified |
+  |---|---|---|
+  | 1 signature valid | any identity, incl. ad-hoc | ✅ passes on an ad-hoc build |
+  | 2 Gatekeeper accepts | **Developer ID + notarization** | ⛔ cannot pass before then — expected FAIL |
+  | 3 notarization stapled | **notarization** | ⛔ cannot pass before then — expected FAIL |
+  | 4 entitlements as reviewed | the entitlements file | ✅ verified both ways (matches; detects tampering) |
+
+  Stages 2–3 failing on a development build is **not a defect in the gate**. Do not "fix" it
+  by weakening them; they are the reason the gate exists. A mismatch at stage 4 means the
+  shipped entitlements are not the reviewed ones. Whether each entry in the source file is
+  *justified* is `R-GATE-DEPS`, not this rule.
 
 ## R-GATE-DEPS — No unreviewed dependency or entitlement growth
 

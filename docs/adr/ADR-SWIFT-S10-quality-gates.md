@@ -58,8 +58,16 @@ There is a second, subtler failure. A project typically runs **two** tools over 
 6. **A gate that cannot run says so; it never passes vacuously.**
    No app target, no test target, no bundle, no installed tool — each is *reported*, and the task's `### Fix` names it. "Vacuous pass" and "pass" are different claims. Correspondingly, an optional gate whose tool is missing **fails closed** rather than skipping: a silent skip is indistinguishable from success.
 
-7. **Scope agreement is checked, not documented.**
-   A linter configured to look at a path that no longer exists lints zero files and exits 0 — the most dangerous failure mode a gate has, because it is invisible and permanent. `make doctor` compares the linter's `included:` path against the Makefile's `APP_SOURCES` and reports a mismatch.
+7. **Prove the gate inspected something; do not assume it did.**
+   A linter pointed at a path that no longer exists lints zero files and exits 0 — the most dangerous failure a gate has, because it is invisible and permanent. `make doctor` compares the linter's `included:` path against the Makefile's `APP_SOURCES`.
+
+   **Scope is per-path, and every path must be listed.** A gate configured for the app
+   directory silently ignores the test directory: test code is code, the same rules apply
+   there, and nothing reports the omission. Verified here — 12 files linted while the entire
+   test target went unchecked. `doctor` now asserts every source root appears in the linter's
+   scope, and reports which are MISSING.
+
+   The same class bites through tooling bugs, not just stale config. Two found in practice here: `swift-format --recursive` renders each file's display path by naively stripping the CWD *string* prefix and then opening that, so when the target's absolute path merely starts with the CWD without being inside it (cwd `…/proj`, target `…/proj-src/…`) every file fails to open; and a build whose artifact lands in a hashed DerivedData directory leaves the release gates pointing at a path that never exists. Enumerate inputs explicitly (`find … | xargs`) and pin output locations (`-derivedDataPath`) rather than trusting a tool's own traversal or defaults.
 
 8. **Pin the tools.**
    Neither SwiftLint nor swift-format has a config-level version field, so a silent upgrade can stop enforcing a rule. Pin in a `Brewfile`. Do **not** install swift-format from a package manager — it ships with the Xcode toolchain, and a second copy means formatting with one version and linting with another.
@@ -69,6 +77,23 @@ There is a second, subtler failure. A project typically runs **two** tools over 
 
 10. **Security gates split by what they inspect.**
     Checks on the **artifact** (entitlements, `get-task-allow`, hardened runtime, ATS) belong to the release tier and are specified in ADR-SWIFT-S06 — they are the highest-yield security gates a macOS app has, because generic SAST does not look at bundles. Checks on the **repository** (secrets, dead code, SAST) are CI-tier and opt-in here.
+
+11. **A gate must be executed against a real artifact before it is trusted.**
+    Reviewing a gate's command tells you it is plausible; running it tells you whether it
+    inspects anything. Every defect below survived careful review and died on first execution:
+    a `BUNDLE` path pointing where the build never writes (release gates permanently
+    unreachable while appearing configured); a formatter invocation that inspected zero files;
+    a linter scope that silently excluded the test target; an entitlements assertion that
+    reached the network. **The minimum bar is that a gate has been shown to both pass and
+    fail** — a gate only ever observed passing is indistinguishable from one that cannot fail.
+
+12. **State the tier in the failure message, not only in the docs.**
+    A release-tier gate run against a debug artifact must say so. `R-GATE-HARDENING` cannot
+    pass on a Debug bundle by construction: Xcode's debug-dylib layout (`ENABLE_DEBUG_DYLIB`)
+    ships a shim plus `*.debug.dylib`/`__preview.dylib` and is signed **without** hardened
+    runtime, regardless of `ENABLE_HARDENED_RUNTIME = YES`. Reporting "hardened runtime is not
+    enabled" sends the reader hunting a build setting that is already correct; the gate now
+    detects the debug layout and names the tier instead.
 
 ## Tool selection
 
@@ -105,6 +130,10 @@ Note that `--strict` reports **every** violation as an error, so a `severity: wa
 ## Consequences
 
 **Positive:** each gate runs at the earliest point its cost is acceptable, so the fast feedback stays fast and stays used; both hooks together mean no tier is skippable by habit; the formatter/linter conflict class is eliminated and *kept* eliminated by an executable check rather than a comment; vacuous passes — the failure mode where a gate reports success while inspecting nothing — are surfaced by `doctor` and by fail-closed optional gates.
+
+**Earned in practice:** this ADR's rules 4, 7, 11 and 12 were each written *after* a gate
+failed to do what its own definition claimed. That is the argument for rule 11 in miniature —
+the tiering was sound on paper from the start, and four of its controls were still wrong.
 
 **Negative:** two hooks plus a `Makefile` is more machinery than one `pre-commit` chain, and `make install-hooks` is a step every clone must run (`doctor` reports when it hasn't); the tier boundary is a judgment call that will need re-litigating whenever a gate's cost changes — which is precisely why it is written down here; `--strict` means a badly-written custom lint rule blocks correct code, so custom rules carry a higher precision bar than advisory ones.
 

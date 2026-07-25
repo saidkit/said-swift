@@ -100,11 +100,11 @@ cp "$ROOT/.swiftlint.yml" "$WORK/.swiftlint.yml"
 /usr/bin/sed -i '' -E "s|^included:|included:\n  - src|" "$WORK/.swiftlint.yml"
 
 echo "1/3  formatting…"
-xcrun swift-format format --in-place --recursive --configuration "$FMT_CFG" "$WORK/src"
+find "$WORK/src" -name '*.swift' -print0 | xargs -0 xcrun swift-format format --in-place --configuration "$FMT_CFG"
 
 echo "2/3  checking the formatter is idempotent…"
 cp "$WORK/src/FixedPoint.swift" "$WORK/pass1.swift"
-xcrun swift-format format --in-place --recursive --configuration "$FMT_CFG" "$WORK/src"
+find "$WORK/src" -name '*.swift' -print0 | xargs -0 xcrun swift-format format --in-place --configuration "$FMT_CFG"
 if ! diff -q "$WORK/pass1.swift" "$WORK/src/FixedPoint.swift" >/dev/null; then
     echo "FAIL: swift-format is not idempotent with this configuration — it oscillates."
     diff -u "$WORK/pass1.swift" "$WORK/src/FixedPoint.swift" || true

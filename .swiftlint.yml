@@ -6,6 +6,7 @@
 # `swiftlint` lint zero files and pass vacuously — `make doctor` checks the agreement.
 included:
   - MyApp
+  - MyAppTests
 
 excluded:
   - .build
