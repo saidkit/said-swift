@@ -77,6 +77,10 @@ It inverts the *annotation direction*, not the architecture:
 | UI, state, coordinators | annotate `@MainActor` | nothing to write |
 | `Services/`, `Core/` logic | nothing to write | annotate `nonisolated` |
 
+Protocols are isolated by this setting too: an unannotated `protocol` becomes main-actor,
+forcing every conformance onto the main actor. A `Core/` contract must be `nonisolated` on the
+protocol *and* its requirements, or the service seam silently collapses onto the main thread.
+
 **Write both annotations explicitly regardless of the mode.** `@MainActor` on UI types and `nonisolated` on service types is correct under either setting, so the code's isolation does not silently change with a build flag. Relying on the absence of an annotation is what makes a project unable to change this setting later.
 
 ## The bridging pattern

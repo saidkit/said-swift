@@ -103,7 +103,7 @@ custom_rules:
     regex: 'NSWorkspace\.shared'
     message: "Process-global framework state belongs in its Live* service (ADR-SWIFT-S05 rule 9)."
     severity: warning
-    excluded: ".*/Core/.*(Live|Stub|Mock).*\\.swift"
+    excluded: ".*/Core/.*(Live|Stub|Mock).*\\.swift|.*Tests/.*Live[A-Za-z]*Tests\\.swift"
 
   # Same-line comment only — the regex cannot see the preceding line.
   no_unjustified_unchecked_sendable:

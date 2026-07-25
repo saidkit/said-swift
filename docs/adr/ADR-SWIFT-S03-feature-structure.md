@@ -46,6 +46,13 @@ Only `<Name>Feature.swift` and `Views/` are expected in every feature. `Coordina
 3. **`Services/` is explicitly `nonisolated` and owns the logic.**
    Feature-local computation, sequencing, and validation live here as `struct`s of pure functions or as an `actor` when the feature owns mutable state that outlives a view. This is the layer with tests.
 
+   **This applies to protocols too, not only to types.** Under
+   `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` a *protocol declaration* is itself
+   main-actor-isolated, which silently forces every conformance onto the main actor and
+   defeats the seam — found when a `Core/` contract's live implementation compiled fine but
+   could not be called from a non-main-actor test. Mark the protocol **and** its requirements
+   `nonisolated`.
+
    Write the `nonisolated` keyword rather than relying on the *absence* of `@MainActor`. An app target may set `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` (Swift 6.2+), under which an unannotated declaration is main-actor — silently pulling this layer onto the main thread and undoing the split. Explicit `nonisolated` is correct under **both** isolation modes, so the code does not depend on a build setting. See ADR-SWIFT-S07.
 
 4. **`Model/` types are `Sendable` value types.**
