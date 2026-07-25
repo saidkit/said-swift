@@ -1,0 +1,14 @@
+#include "MyApp-Base.xcconfig"
+
+SWIFT_OPTIMIZATION_LEVEL = -O
+SWIFT_TREAT_WARNINGS_AS_ERRORS = YES
+GCC_TREAT_WARNINGS_AS_ERRORS = YES
+// Release must NOT carry get-task-allow — R-GATE-HARDENING asserts its absence.
+// (xcconfig comments are //, never # — a # line is parsed as a preprocessor directive.)
+CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO
+// Team settled: Visible Magic Inc (ADR-SWIFT-004). Identity stays ad-hoc until a
+// Developer ID Application certificate exists; then set it VERBATIM from
+// `security find-identity -v -p codesigning`, trailing punctuation included.
+DEVELOPMENT_TEAM = 
+CODE_SIGN_IDENTITY = -
+// CODE_SIGN_IDENTITY = Developer ID Application: Visible Magic Inc ()

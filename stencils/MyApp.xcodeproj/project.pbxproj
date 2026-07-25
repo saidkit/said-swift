@@ -1,0 +1,193 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		A1000001 /* MyApp */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (A1000003); explicitFileTypes = {}; explicitFolders = (); path = MyApp; sourceTree = "<group>"; };
+		A1000002 /* MyAppTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MyAppTests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A1000003 = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Supporting/Info.plist",
+				"Supporting/MyApp.entitlements",
+				"Build Configs/Project-Base.xcconfig",
+				"Build Configs/MyApp-Base.xcconfig",
+				"Build Configs/MyApp-Debug.xcconfig",
+				"Build Configs/MyApp-Release.xcconfig",
+			);
+			target = A5000001;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileReference section */
+		A2000001 /* MyApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000002 /* MyAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000010 /* Project-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Project-Base.xcconfig"; path = "MyApp/Build Configs/Project-Base.xcconfig"; sourceTree = "<group>"; };
+		A2000011 /* MyApp-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "MyApp-Base.xcconfig"; path = "MyApp/Build Configs/MyApp-Base.xcconfig"; sourceTree = "<group>"; };
+		A2000012 /* MyApp-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "MyApp-Debug.xcconfig"; path = "MyApp/Build Configs/MyApp-Debug.xcconfig"; sourceTree = "<group>"; };
+		A2000013 /* MyApp-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "MyApp-Release.xcconfig"; path = "MyApp/Build Configs/MyApp-Release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A3000001 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		A3000002 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A4000000 = {
+			isa = PBXGroup;
+			children = (
+				A4000010 /* Build Configs */,
+				A1000001 /* MyApp */,
+				A1000002 /* MyAppTests */,
+				A4000001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A4000001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A2000001 /* MyApp.app */,
+				A2000002 /* MyAppTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A4000010 /* Build Configs */ = {
+			isa = PBXGroup;
+			children = (
+				A2000010 /* Project-Base.xcconfig */,
+				A2000011 /* MyApp-Base.xcconfig */,
+				A2000012 /* MyApp-Debug.xcconfig */,
+				A2000013 /* MyApp-Release.xcconfig */,
+			);
+			name = "Build Configs";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A5000001 /* MyApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6000001;
+			buildPhases = (
+				A7000001,
+				A3000001,
+				A8000001,
+			);
+			buildRules = ();
+			dependencies = ();
+			fileSystemSynchronizedGroups = (A1000001);
+			name = MyApp;
+			productName = MyApp;
+			productReference = A2000001;
+			productType = "com.apple.product-type.application";
+		};
+		A5000002 /* MyAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6000002;
+			buildPhases = (
+				A7000002,
+				A3000002,
+			);
+			buildRules = ();
+			dependencies = (A9000001);
+			fileSystemSynchronizedGroups = (A1000002);
+			name = MyAppTests;
+			productName = MyAppTests;
+			productReference = A2000002;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A0000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2660;
+				LastUpgradeCheck = 2660;
+				TargetAttributes = {
+					A5000001 = { CreatedOnToolsVersion = 26.6; };
+					A5000002 = { CreatedOnToolsVersion = 26.6; TestTargetID = A5000001; };
+				};
+			};
+			buildConfigurationList = A6000000;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base);
+			mainGroup = A4000000;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A4000001;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (A5000001, A5000002);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A8000001 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A7000001 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		A7000002 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A9000001 = {isa = PBXTargetDependency; target = A5000001; targetProxy = A9000002; };
+/* End PBXTargetDependency section */
+
+/* Begin PBXContainerItemProxy section */
+		A9000002 = {isa = PBXContainerItemProxy; containerPortal = A0000001; proxyType = 1; remoteGlobalIDString = A5000001; remoteInfo = MyApp; };
+/* End PBXContainerItemProxy section */
+
+/* Begin XCBuildConfiguration section */
+		A6000010 /* Debug */ = { isa = XCBuildConfiguration; baseConfigurationReference = A2000010; buildSettings = { }; name = Debug; };
+		A6000011 /* Release */ = { isa = XCBuildConfiguration; baseConfigurationReference = A2000010; buildSettings = { }; name = Release; };
+		A6000020 /* Debug */ = { isa = XCBuildConfiguration; baseConfigurationReference = A2000012; buildSettings = { }; name = Debug; };
+		A6000021 /* Release */ = { isa = XCBuildConfiguration; baseConfigurationReference = A2000013; buildSettings = { }; name = Release; };
+		A6000030 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A2000010;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.MyAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyApp.app/Contents/MacOS/MyApp";
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+			};
+			name = Debug;
+		};
+		A6000031 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A2000010;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.MyAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyApp.app/Contents/MacOS/MyApp";
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A6000000 = { isa = XCConfigurationList; buildConfigurations = (A6000010, A6000011); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		A6000001 = { isa = XCConfigurationList; buildConfigurations = (A6000020, A6000021); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		A6000002 = { isa = XCConfigurationList; buildConfigurations = (A6000030, A6000031); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = A0000001 /* Project object */;
+}

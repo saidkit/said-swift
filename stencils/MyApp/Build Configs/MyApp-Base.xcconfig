@@ -1,0 +1,9 @@
+#include "Project-Base.xcconfig"
+
+PRODUCT_NAME = MyApp
+PRODUCT_BUNDLE_IDENTIFIER = com.example.MyApp
+INFOPLIST_FILE = MyApp/Supporting/Info.plist
+CODE_SIGN_ENTITLEMENTS = MyApp/Supporting/MyApp.entitlements
+CODE_SIGN_STYLE = Manual
+SWIFT_OBJC_BRIDGING_HEADER =
+COMBINE_HIDPI_IMAGES = YES
