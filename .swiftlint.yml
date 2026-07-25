@@ -1,0 +1,114 @@
+# SwiftLint — R-GATE-LINT (docs/qa/feature-qa-checklist.md)
+#
+# Lints the app target's Swift sources.
+
+# ⚠ Must match APP_SOURCES in the Makefile. A path that does not exist makes
+# `swiftlint` lint zero files and pass vacuously — `make doctor` checks the agreement.
+included:
+  - MyApp
+
+excluded:
+  - .build
+  - DerivedData
+  - Pods
+
+opt_in_rules:
+  - array_init
+  - contains_over_filter_count
+  - contains_over_first_not_nil
+  - empty_count
+  - empty_string
+  - explicit_init
+  - fatal_error_message          # ADR-SWIFT-S09 rule 10
+  - first_where
+  - force_unwrapping             # ADR-SWIFT-S09 rule 10
+  - implicitly_unwrapped_optional
+  - last_where
+  - modifier_order
+  - overridden_super_call
+  - prefer_self_type_over_type_of_self
+  - redundant_nil_coalescing
+  - toggle_bool
+  - unneeded_parentheses_in_closure_argument
+  - unowned_variable_capture
+  - yoda_condition
+
+# Concerns swift-format owns. Keeping these on creates an UNFIXABLE loop: the formatter
+# writes X, the linter demands Y, neither yields. Verified by `make tooling-check`
+# (scripts/tooling-fixedpoint.sh) — re-run it after changing either config or bumping
+# either tool. One owner per concern.
+disabled_rules:
+  - todo                          # tracked in the task log, not by the linter
+  - trailing_comma                # swift-format ADDS them to multiline literals; SwiftLint forbids them
+  - line_length                   # swift-format enforces lineLength and breaks what it can;
+                                  # what's left (long string literals) is unbreakable
+
+type_body_length:
+  warning: 300
+  error: 500
+
+file_length:
+  warning: 500
+  error: 800
+
+function_body_length:
+  warning: 60
+  error: 120
+
+cyclomatic_complexity:
+  warning: 12
+  error: 20
+
+identifier_name:
+  min_length: 2
+  excluded: [id, x, y, w, h, dx, dy, ok, up]
+
+# --- Architecture rules from the ADRs, enforced mechanically -------------------
+# Each maps to a "Forbidden practices" entry in docs/conventions.md.
+
+custom_rules:
+  no_main_sync:
+    name: "DispatchQueue.main.sync"
+    regex: 'DispatchQueue\.main\.sync'
+    message: "Forbidden (ADR-SWIFT-S07 rule 6) — deadlocks. Use `await MainActor.run { }`."
+    severity: error
+
+  no_delegate_reachback:
+    name: "NSApp.delegate reach-back"
+    regex: '(NSApp|NSApplication\.shared)\.delegate\s+as[!?]'
+    message: "Forbidden (ADR-SWIFT-S05 rule 8) — inject the dependency instead."
+    severity: error
+
+  no_print:
+    name: "print / NSLog"
+    regex: '^\s*(print|NSLog)\('
+    message: "Use os.Logger (ADR-SWIFT-S09 rule 7) — print is invisible in a shipped app."
+    severity: error
+
+  no_ambient_user_defaults:
+    name: "UserDefaults.standard outside its service"
+    regex: 'UserDefaults\.standard'
+    message: "Reach UserDefaults through the SettingsService facade (ADR-SWIFT-S08 rule 2)."
+    severity: error
+    excluded: ".*/(Live|Stub|Mock)SettingsService\\.swift|.*/AppEnvironment\\.swift"
+
+  # NOTE: `make lint` runs --strict, which reports EVERY violation as an error and fails the
+  # run. `severity: warning` below therefore still blocks — it only changes the label in
+  # non-strict runs. Keep these rules precise enough that a false positive never blocks
+  # correct code. `FileManager.default` is deliberately NOT matched: it is legitimate in pure
+  # helpers under Core/Support/ (see conventions.md, "Service modules — does not").
+  no_ambient_workspace:
+    name: "NSWorkspace.shared outside a service"
+    regex: 'NSWorkspace\.shared'
+    message: "Process-global framework state belongs in its Live* service (ADR-SWIFT-S05 rule 9)."
+    severity: warning
+    excluded: ".*/Core/.*(Live|Stub|Mock).*\\.swift"
+
+  # Same-line comment only — the regex cannot see the preceding line.
+  no_unjustified_unchecked_sendable:
+    name: "@unchecked Sendable without justification"
+    regex: '@unchecked Sendable(?!.*//)'
+    message: "Justify on the SAME line: `@unchecked Sendable  // immutable after init` (ADR-SWIFT-S07 rule 4)."
+    severity: warning
+
+reporter: "xcode"

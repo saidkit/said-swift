@@ -1,0 +1,84 @@
+// Project-Base.xcconfig — settings every target inherits.
+//
+// STENCIL. Copy into <APP_SOURCES>/Build Configs/ when you create the app target, then
+// #include it from the per-configuration files. It lives under stencils/ rather than in
+// place so the template ships no half-real app directory (an empty one would make
+// `make doctor` report sources present and `swiftlint` lint zero files — a vacuous pass).
+//
+// Rationale: ADR-SWIFT-S06 (all settings in xcconfig, never the target editor) and
+// ADR-SWIFT-S07 (the concurrency posture these flags enforce).
+//
+// ⚠ Every value below was checked against Swift 6.3.3 / Xcode 26.6. Re-check after a
+//   toolchain bump — see the SILENT NO-OP warning under upcoming features.
+
+// ---- Language -------------------------------------------------------------------
+
+SWIFT_VERSION = 6.0
+SWIFT_STRICT_CONCURRENCY = complete
+
+// Deployment target. `@Observable` (Observation) requires 14.0 — settle this BEFORE the
+// first feature; swapping the observation mechanism across a built UI is expensive.
+MACOSX_DEPLOYMENT_TARGET = 14.0
+
+// ---- Concurrency posture (Swift 6.2+) -------------------------------------------
+//
+// For an APP target, default-MainActor isolation is the right default: most app code is
+// main-actor anyway, so you annotate the exceptions (`nonisolated` on services) rather
+// than annotating nearly every type `@MainActor`.
+//
+// Verified behavioural effect: with this set, calling a plain global function from a
+// `nonisolated` synchronous context is an error — declarations are MainActor by default.
+//
+// Write `Services/` types as explicitly `nonisolated` (ADR-SWIFT-S03 rule 3). That is
+// correct under BOTH isolation modes, so the code does not depend on this setting.
+//
+// Do NOT set this on a framework/library target — libraries should stay non-isolated.
+SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor
+SWIFT_APPROACHABLE_CONCURRENCY = YES
+
+// ---- Upcoming features (Swift 7 direction) --------------------------------------
+//
+// ⚠ SILENT NO-OP WARNING: an unrecognised or misspelled upcoming-feature name is
+//   accepted with NO error and NO warning — verified. You get zero enforcement and no
+//   signal. After adding one, confirm it actually fires by writing code that violates it
+//   and checking the build fails.
+//
+// ExistentialAny         — forces `any P` at existential use sites
+// MemberImportVisibility — a member is only visible if its module is imported here
+// InternalImportsByDefault — imports are `internal` unless marked `public import`
+SWIFT_UPCOMING_FEATURE_EXISTENTIAL_ANY = YES
+SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES
+// SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT = YES   // enable when the module graph settles
+
+// Opt-in memory-safety checking (Swift 6.2+). Surfaces unsafe constructs via @safe/@unsafe.
+// Worth enabling on a new codebase; expect noise on one wrapping C APIs.
+// SWIFT_STRICT_MEMORY_SAFETY = YES
+
+// ---- Diagnostics ----------------------------------------------------------------
+
+// Compile-time regression alarms. Underused and high value: they turn "the build got
+// mysteriously slow" into a warning naming the expression that blew up the type checker.
+OTHER_SWIFT_FLAGS = $(inherited) -Xfrontend -warn-long-function-bodies=500 -Xfrontend -warn-long-expression-type-checking=500
+
+GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES
+GCC_WARN_UNDECLARED_SELECTOR = YES
+CLANG_WARN_DOCUMENTATION_COMMENTS = YES
+CLANG_ANALYZER_NONNULL = YES
+CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE
+
+// Warnings-as-errors is STAGED, not global: hostile in the inner loop, essential in CI.
+// Set it in the Release/CI configuration only — see ADR-SWIFT-S10.
+// SWIFT_TREAT_WARNINGS_AS_ERRORS = YES
+// GCC_TREAT_WARNINGS_AS_ERRORS = YES
+
+// ---- Hardening ------------------------------------------------------------------
+
+ENABLE_HARDENED_RUNTIME = YES
+ENABLE_USER_SCRIPT_SANDBOXING = YES
+
+// `get-task-allow` lets any process attach a debugger and read the app's memory. Xcode
+// injects it into Debug builds. It must NEVER reach a Release build — notarization
+// rejects it, and shipping it would be a genuine vulnerability. R-GATE-HARDENING asserts
+// its absence from the built bundle; this is the belt to that suspenders.
+// (Set in the Debug configuration only.)
+// CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO   // in Release

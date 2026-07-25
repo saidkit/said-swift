@@ -1,0 +1,37 @@
+# CI runs the same `make` verbs a developer runs — no duplicated xcodebuild
+# invocations (ADR-SWIFT-S06). Tiering per ADR-SWIFT-S10.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # version numbers derive from git history (ADR-SWIFT-S06)
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Install pinned tooling
+        run: brew bundle --no-upgrade
+
+      - name: Report gate availability
+        run: make doctor
+
+      # Asserts the formatter and the linter agree before trusting either of them.
+      - name: Tooling fixed point
+        run: make tooling-check
+
+      # The full tier — format-check, lint, build, test. Same target as the pre-push hook.
+      - name: Gates
+        run: make ci

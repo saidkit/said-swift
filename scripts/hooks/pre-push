@@ -1,0 +1,4 @@
+#!/bin/sh
+# Full tier — minutes. ADR-SWIFT-S10.
+# This is the gate that stops a broken build reaching the remote. Same chain CI runs.
+exec make ci
