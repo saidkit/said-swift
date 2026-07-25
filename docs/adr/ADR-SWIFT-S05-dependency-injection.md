@@ -50,8 +50,17 @@ Unlike a server process, a macOS app has an obvious, single, well-defined compos
    ```
 
    ```swift
+   // App/main.swift — the entry point (NOT `@main` on the delegate; see ADR-SWIFT-S01 rule 9)
+   let application = NSApplication.shared
+   let delegate = AppDelegate()
+   application.delegate = delegate
+   application.setActivationPolicy(.regular)
+   application.run()
+   ```
+
+   ```swift
    // App/AppDelegate.swift — composes, does not implement
-   @main @MainActor
+   @MainActor
    final class AppDelegate: NSObject, NSApplicationDelegate {
        private var console: ConsoleCoordinator?
 

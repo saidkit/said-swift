@@ -27,7 +27,7 @@ project/
 │   ├── App/                           # lifecycle + composition root (S05)
 │   │   ├── AppDelegate.swift          # thin: builds the environment, hands off
 │   │   ├── AppEnvironment.swift       # the composition root's dependency graph
-│   │   └── main.swift                 # only if not using @main
+│   │   └── main.swift                 # the entry point — see rule 9
 │   ├── Features/<Name>/               # FEATURE MODULES — where capability lives (S03)
 │   ├── Core/                          # cross-feature, feature-agnostic
 │   │   ├── <Service>/                 # external-system / framework seam (S04)
@@ -66,6 +66,14 @@ project/
    CLI helpers, login items, XPC services, and Spotlight/Share extensions are their own targets with explicit dependency edges and their own xcconfig — never files bolted onto the app target.
 8. **Tests mirror the source tree.**
    `<Product>Tests/Features/<Name>/…` matches `<Product>/Features/<Name>/…`. A reader who knows where the code is knows where its test is.
+
+9. **The entry point is `main.swift`, not `@main` on the delegate.**
+   Construct `NSApplication`, assign the delegate, set the activation policy, call `run()`.
+   Verified failure: `@main` on an `NSApplicationDelegate` did **not** invoke
+   `applicationDidFinishLaunching` in an app target — the process launched and stayed alive,
+   the callback never fired, and no window appeared. Nothing errored, which is what makes it
+   expensive to diagnose. The explicit form is also the only one that states activation policy
+   plainly, which an agent or menu-bar app must control anyway.
 
 ### Dependency direction
 

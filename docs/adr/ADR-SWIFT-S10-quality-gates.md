@@ -95,6 +95,16 @@ There is a second, subtler failure. A project typically runs **two** tools over 
     enabled" sends the reader hunting a build setting that is already correct; the gate now
     detects the debug layout and names the tier instead.
 
+13. **A multi-stage gate reports per stage, and names stages it cannot verify locally.**
+    Aborting at the first failure with a bare exit code tells the reader nothing about which
+    of four checks failed or why. Report each stage. More importantly, some stages **cannot
+    pass without an external authority** — `R-GATE-SIGN`'s Gatekeeper and stapling checks
+    require a Developer ID and a completed notarization round-trip, so they fail on every
+    development build by construction. Say so in the output. An unexplained permanent failure
+    invites someone to "fix" it by weakening the check, which deletes the only thing it was
+    guarding. Stages that *can* be verified locally (signature validity, entitlements matching
+    the reviewed file) should be, and should be shown passing.
+
 ## Tool selection
 
 Chosen because each is the ecosystem default with no meaningful contender — recorded for completeness, not because the choice was hard.
