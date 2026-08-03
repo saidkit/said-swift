@@ -1,4 +1,4 @@
-# SAID-swift — Smart AI Development for macOS apps
+# SAID-swift — Software AI Delivery for macOS apps
 
 AI-native **Swift 6 / macOS** starter: AppKit shell with SwiftUI content, strict concurrency, system frameworks behind contracts, and a signed-and-notarized delivery chain. Self-contained — its own conventions, ADRs, quality gates, and AI development guide (`CLAUDE.md`).
 

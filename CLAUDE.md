@@ -1,5 +1,19 @@
 # CLAUDE.md — said-swift Development Guide
 
+## Lane
+
+**SAID lane:** single — this project is one lane.
+
+- **Docs root** — `docs/`
+- **Code mount(s)** — the app target (`scripts/`, `stencils/` are tooling, not lane code)
+- **Feature spec** — `docs/features/<id>.md`
+- **Task log** — `docs/features/<id>.tasks.md` (flat)
+- **Working dir** — `docs/working/<id>/`
+- **Task-id shape** — per `docs/features/template-tasks.md` stencil (`<FEAT>`) — no app segment; this starter is single-app
+- **ADR prefix** — `ADR-SWIFT-*` (system tier `-SNN-`)
+
+A **lane** is a tree that owns a full SAID cycle — its own feature specs, task log, working dir and ADRs. A lane is **not a mount**: a project may build into several mounts and remain one lane. Single-lane work is `said!`; `flow!` is for a feature spanning **two or more task logs**, which this project does not have.
+
 ## Project Overview
 **Project**: <PROJECT> — <one line: what this app is>
 **Template**: said-swift — Swift 6 / AppKit macOS app starter (the `ADR-SWIFT-S0x` spine + `docs/` contract)
