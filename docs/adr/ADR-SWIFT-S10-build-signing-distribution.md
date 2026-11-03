@@ -1,4 +1,4 @@
-# ADR-SWIFT-S06: Build, Signing & Distribution
+# ADR-SWIFT-S10: Build, Signing & Distribution
 
 **Date:** 2026-07-25
 **Status:** Accepted

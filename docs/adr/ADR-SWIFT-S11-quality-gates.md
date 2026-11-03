@@ -1,4 +1,4 @@
-# ADR-SWIFT-S10: Quality Gates — Tiering by Feedback Cost
+# ADR-SWIFT-S11: Quality Gates - Tiering by Feedback Cost
 
 **Date:** 2026-07-25
 **Status:** Accepted
