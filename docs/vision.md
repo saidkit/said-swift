@@ -37,5 +37,5 @@ behind a composition root and system frameworks behind service contracts.
 
 ## Architecture Decisions
 
-See [`docs/adr/README.md`](adr/README.md) — system ADRs (`ADR-SWIFT-S0x`, the portable
+See [`docs/adr/README.md`](adr/README.md) - STARTER ADRs (`ADR-SWIFT-S0x`, the portable
 said-swift spine) and project ADRs (`ADR-SWIFT-00x`, yours).

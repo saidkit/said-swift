@@ -10,7 +10,7 @@ A **documentation-and-gates spine, not a code scaffold** — it ships no `.xcode
 - **`CLAUDE.md`** — AI development guide (entry point for Claude Code)
 - **`conventions.md`** — Swift/macOS code patterns, copyable
 - **`idea.md` / `vision.md`** — project context stubs
-- **`adr/ADR-SWIFT-S01..S09`** — System ADRs:
+- **`adr/ADR-SWIFT-S01..S09`** - STARTER ADRs, provided by the starter:
 
   | ADR | Decides |
   |---|---|
@@ -83,4 +83,4 @@ Feature work runs the SAID phases over this spine — scope → architect → im
 
 ## Divergence
 
-The `ADR-SWIFT-S0x` files are the template. If you edit one, your copy has forked — record *why* in a project ADR (`ADR-SWIFT-00x`) that names the system ADR it overrides. Silent divergence is how a template stops being one.
+The `ADR-SWIFT-S0x` files are the template. If you edit one, your copy has forked - record *why* in a project ADR (`ADR-SWIFT-00x`) that names the STARTER ADR it overrides. Silent divergence is how a template stops being one.

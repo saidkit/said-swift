@@ -73,7 +73,7 @@ docs/
 ├── vision.md                     # Technical architecture (what)
 ├── conventions.md                # Code patterns (how)
 ├── adr/
-│   ├── ADR-SWIFT-S0x-topic.md    # System ADRs — the portable said-swift spine
+│   ├── ADR-SWIFT-S0x-topic.md    # STARTER ADRs - the portable said-swift spine
 │   └── ADR-SWIFT-00x-topic.md    # Project ADRs — this product (none ship with the template)
 ├── features/
 │   ├── README.md                 # Feature structure reference
