@@ -1,4 +1,4 @@
-# ADR-SWIFT-S10: Pure Service Modules (system frameworks behind contracts)
+# ADR-SWIFT-S06: Pure Service Modules (system frameworks behind contracts)
 
 **Date:** 2026-07-25
 **Status:** Accepted
