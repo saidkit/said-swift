@@ -76,7 +76,7 @@ There is a second, subtler failure. A project typically runs **two** tools over 
    An SPM build-tool plugin puts the linter on the critical path of every compile, needs sandbox exceptions to write anywhere, and couples tool failure to build failure. The `make` facade keeps them separable.
 
 10. **Security gates split by what they inspect.**
-    Checks on the **artifact** (entitlements, `get-task-allow`, hardened runtime, ATS) belong to the release tier and are specified in ADR-SWIFT-S06 — they are the highest-yield security gates a macOS app has, because generic SAST does not look at bundles. Checks on the **repository** (secrets, dead code, SAST) are CI-tier and opt-in here.
+    Checks on the **artifact** (entitlements, `get-task-allow`, hardened runtime, ATS) belong to the release tier and are specified in ADR-SWIFT-S10 — they are the highest-yield security gates a macOS app has, because generic SAST does not look at bundles. Checks on the **repository** (secrets, dead code, SAST) are CI-tier and opt-in here.
 
 11. **A gate must be executed against a real artifact before it is trusted.**
     Reviewing a gate's command tells you it is plausible; running it tells you whether it
@@ -122,7 +122,7 @@ Note that `--strict` reports **every** violation as an error, so a `severity: wa
 ## Out of scope
 
 - **The `verify:` command per rule** — [`../qa/feature-qa-checklist.md`](../qa/feature-qa-checklist.md), the single source.
-- **Release-chain ordering, signing, notarization, and the artifact-hardening gates** — [ADR-SWIFT-S06](ADR-SWIFT-S06-build-signing-distribution.md).
+- **Release-chain ordering, signing, notarization, and the artifact-hardening gates** — [ADR-SWIFT-S10](ADR-SWIFT-S10-build-signing-distribution.md).
 - **Compiler settings** (strict concurrency, upcoming features, diagnostics) — [ADR-SWIFT-S02](ADR-SWIFT-S02-app-stack.md) decides the posture; `stencils/Build Configs/Project-Base.xcconfig` carries the values.
 
 ## Alternatives considered
@@ -149,7 +149,7 @@ the tiering was sound on paper from the start, and four of its controls were sti
 
 ## Related
 
-- **Release tier and artifact hardening:** [ADR-SWIFT-S06](ADR-SWIFT-S06-build-signing-distribution.md) — owns `R-GATE-SIGN` and `R-GATE-HARDENING`.
+- **Release tier and artifact hardening:** [ADR-SWIFT-S10](ADR-SWIFT-S10-build-signing-distribution.md) — owns `R-GATE-SIGN` and `R-GATE-HARDENING`.
 - **Stack and compiler posture:** [ADR-SWIFT-S02](ADR-SWIFT-S02-app-stack.md) — what the gates enforce.
 - **Concurrency diagnostics:** [ADR-SWIFT-S07](ADR-SWIFT-S07-concurrency-and-main-thread.md) — strict concurrency is a build-tier gate, not a lint rule.
 - **Gate definitions:** [`../qa/feature-qa-checklist.md`](../qa/feature-qa-checklist.md).

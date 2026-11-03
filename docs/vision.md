@@ -30,10 +30,10 @@ behind a composition root and system frameworks behind service contracts.
 - **`AppDelegate` composes; features implement** — ADR-SWIFT-S01, ADR-SWIFT-S05
 - **The `@MainActor` boundary is the architecture** — views and state on it, logic and services
   off it (ADR-SWIFT-S03, ADR-SWIFT-S07)
-- **System frameworks behind contracts** — one import site per framework (ADR-SWIFT-S04)
+- **System frameworks behind contracts** — one import site per framework (ADR-SWIFT-S06)
 - **Three stores, split by the text-editor test** — app settings in `UserDefaults`, hand-authored
   configuration in a user-visible directory, generated data in Application Support (ADR-SWIFT-S08)
-- **Build settings are reviewable text** — `.xcconfig`, never the target editor (ADR-SWIFT-S06)
+- **Build settings are reviewable text** — `.xcconfig`, never the target editor (ADR-SWIFT-S10)
 
 ## Architecture Decisions
 

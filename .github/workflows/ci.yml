@@ -1,5 +1,5 @@
 # CI runs the same `make` verbs a developer runs — no duplicated xcodebuild
-# invocations (ADR-SWIFT-S06). Tiering per ADR-SWIFT-S10.
+# invocations (ADR-SWIFT-S10). Tiering per ADR-SWIFT-S11.
 name: CI
 
 on:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # version numbers derive from git history (ADR-SWIFT-S06)
+          fetch-depth: 0   # version numbers derive from git history (ADR-SWIFT-S10)
 
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app

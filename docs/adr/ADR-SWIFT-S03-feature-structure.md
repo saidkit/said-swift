@@ -59,7 +59,7 @@ Only `<Name>Feature.swift` and `Views/` are expected in every feature. `Coordina
    `struct`/`enum` crossing the actor boundary. A model type that cannot be `Sendable` is a signal that it is really state (rule 2) or a service handle (rule 3).
 
 5. **The feature declares its needs; it does not resolve them.**
-   `<Name>Feature.swift` exposes a factory taking the protocols it needs (ADR-SWIFT-S04 contracts, plus a `Deps` struct for genuine cross-feature needs). It never constructs a `Core/` service itself, never reads `UserDefaults` directly, and never reaches `NSApp.delegate`. Wiring happens at the composition root — ADR-SWIFT-S05.
+   `<Name>Feature.swift` exposes a factory taking the protocols it needs (ADR-SWIFT-S06 contracts, plus a `Deps` struct for genuine cross-feature needs). It never constructs a `Core/` service itself, never reads `UserDefaults` directly, and never reaches `NSApp.delegate`. Wiring happens at the composition root — ADR-SWIFT-S05.
 
 6. **Features never import another feature's internals.**
    Another feature's `Model/` types are fair game (they are value types). Its `Views/`, `State/`, `Services/`, or coordinator are not. Cross-feature capability arrives through `Deps`.
@@ -102,7 +102,7 @@ A feature that renders injected data and reports user intent through closures is
 ## Out of scope
 
 - **Where the folder sits** — ADR-SWIFT-S01.
-- **How `Core/` services are written** — ADR-SWIFT-S04.
+- **How `Core/` services are written** — ADR-SWIFT-S06.
 - **How dependencies are wired** — ADR-SWIFT-S05.
 - **Actor-hopping mechanics and callback bridging** — ADR-SWIFT-S07.
 
@@ -126,7 +126,7 @@ A feature that renders injected data and reports user intent through closures is
 
 - **Layout:** [ADR-SWIFT-S01](ADR-SWIFT-S01-repository-structure.md) — where `Features/` sits.
 - **Stack:** [ADR-SWIFT-S02](ADR-SWIFT-S02-app-stack.md) — AppKit shell / SwiftUI content, `@Observable` state.
-- **Service modules:** [ADR-SWIFT-S04](ADR-SWIFT-S04-pure-service-modules.md) — the protocols a feature is handed.
+- **Service modules:** [ADR-SWIFT-S06](ADR-SWIFT-S06-pure-service-modules.md) — the protocols a feature is handed.
 - **Dependency injection:** [ADR-SWIFT-S05](ADR-SWIFT-S05-dependency-injection.md) — `Deps` and the composition root.
 - **Concurrency:** [ADR-SWIFT-S07](ADR-SWIFT-S07-concurrency-and-main-thread.md) — the isolation rules this anatomy encodes.
 - **Conventions:** [`../conventions.md`](../conventions.md).

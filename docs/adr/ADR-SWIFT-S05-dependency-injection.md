@@ -4,7 +4,7 @@
 **Status:** Accepted
 **Class:** System (portable across Swift / macOS app projects)
 
-> This is the *how* behind [ADR-SWIFT-S01](ADR-SWIFT-S01-repository-structure.md)'s "features never reach into another feature's internals" and [ADR-SWIFT-S04](ADR-SWIFT-S04-pure-service-modules.md)'s "features receive the protocol, they never construct the implementation."
+> This is the *how* behind [ADR-SWIFT-S01](ADR-SWIFT-S01-repository-structure.md)'s "features never reach into another feature's internals" and [ADR-SWIFT-S06](ADR-SWIFT-S06-pure-service-modules.md)'s "features receive the protocol, they never construct the implementation."
 
 ## Problem
 
@@ -105,7 +105,7 @@ Unlike a server process, a macOS app has an obvious, single, well-defined compos
    The consumer and its tests depend on the signature, not the implementation, so nothing changes when the real one arrives.
 
 6. **Test by constructing the feature with doubles.**
-   No app, no window, no permissions. Doubles come from `Core/<Service>/Stub…` (ADR-SWIFT-S04 rule 5); cross-feature closures are supplied inline.
+   No app, no window, no permissions. Doubles come from `Core/<Service>/Stub…` (ADR-SWIFT-S06 rule 5); cross-feature closures are supplied inline.
 
    ```swift
    @Test func evaluatesAndAppends() async throws {
@@ -124,7 +124,7 @@ Unlike a server process, a macOS app has an obvious, single, well-defined compos
    `NSApp.delegate as! AppDelegate` — and `NSApplication.shared.delegate` casts generally — are forbidden. If an object needs something the delegate holds, it should have been handed it at construction. This is the single most common way a Cocoa dependency graph becomes unreadable, and it is a hard rule, not a preference.
 
 9. **Framework-imposed globals are wrapped, not embraced.**
-   `UserDefaults.standard`, `NSWorkspace.shared`, `FileManager.default`, and `SMAppService` are reachable everywhere by design. Each is reached only from its `Live…` service (ADR-SWIFT-S04 rule 2), which the environment owns.
+   `UserDefaults.standard`, `NSWorkspace.shared`, `FileManager.default`, and `SMAppService` are reachable everywhere by design. Each is reached only from its `Live…` service (ADR-SWIFT-S06 rule 2), which the environment owns.
 
 ## DO / DON'T
 
@@ -154,7 +154,7 @@ Unlike a server process, a macOS app has an obvious, single, well-defined compos
 | `NSApp.delegate` reach-back | Rejected — same as above, plus a forced cast on every use |
 | A DI container (Swinject, Factory, or `@Injected` property wrappers) | Rejected — runtime resolution replaces a compile-time-checked function parameter with a registration that fails at launch; obscures the graph the ADR is trying to make visible |
 | SwiftUI `@Environment` as the app-wide mechanism | Rejected as the primary mechanism — it is view-tree-scoped and does not reach AppKit coordinators, services, or tests. Fine *within* a SwiftUI subtree, seeded from the environment |
-| Protocol per cross-feature need instead of closures | Rejected for `Deps` — a one-method protocol plus a conforming type is three declarations where a closure field is one. Protocols stay for `Core/` services (ADR-SWIFT-S04), which are multi-method contracts |
+| Protocol per cross-feature need instead of closures | Rejected for `Deps` — a one-method protocol plus a conforming type is three declarations where a closure field is one. Protocols stay for `Core/` services (ADR-SWIFT-S06), which are multi-method contracts |
 
 ## Consequences
 
@@ -165,7 +165,7 @@ Unlike a server process, a macOS app has an obvious, single, well-defined compos
 ## Related
 
 - **Dependency direction:** [ADR-SWIFT-S01](ADR-SWIFT-S01-repository-structure.md) — declares the rule this ADR implements.
-- **Service contracts:** [ADR-SWIFT-S04](ADR-SWIFT-S04-pure-service-modules.md) — what gets injected.
+- **Service contracts:** [ADR-SWIFT-S06](ADR-SWIFT-S06-pure-service-modules.md) — what gets injected.
 - **Feature structure:** [ADR-SWIFT-S03](ADR-SWIFT-S03-feature-structure.md) — where `Deps` and the factory live.
 - **Concurrency:** [ADR-SWIFT-S07](ADR-SWIFT-S07-concurrency-and-main-thread.md) — why `Deps` closures are `@Sendable`.
 - **Conventions:** [`../conventions.md`](../conventions.md).

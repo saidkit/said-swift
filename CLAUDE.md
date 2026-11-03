@@ -30,9 +30,9 @@ Start with **this file only**. Then load deeper context by task — see **Implem
 | Repo structure / where code goes | `docs/adr/ADR-SWIFT-S01-repository-structure.md` |
 | Stack (Swift version, AppKit vs SwiftUI, dependencies) | `docs/adr/ADR-SWIFT-S02-app-stack.md` |
 | Feature internals (Views / State / Services, MainActor boundary) | `docs/adr/ADR-SWIFT-S03-feature-structure.md` |
-| Touching a system framework or external system | `docs/adr/ADR-SWIFT-S04-pure-service-modules.md` |
+| Touching a system framework or external system | `docs/adr/ADR-SWIFT-S06-pure-service-modules.md` |
 | Wiring dependencies / adding to the composition root | `docs/adr/ADR-SWIFT-S05-dependency-injection.md` |
-| Build settings, signing, entitlements, notarization, versioning | `docs/adr/ADR-SWIFT-S06-build-signing-distribution.md` |
+| Build settings, signing, entitlements, notarization, versioning | `docs/adr/ADR-SWIFT-S10-build-signing-distribution.md` |
 | Concurrency, actor isolation, bridging a callback | `docs/adr/ADR-SWIFT-S07-concurrency-and-main-thread.md` |
 | Where a piece of state lives on disk | `docs/adr/ADR-SWIFT-S08-settings-and-data-storage.md` |
 | Error handling, logging, alerts | `docs/adr/ADR-SWIFT-S09-error-handling-and-logging.md` |
@@ -43,7 +43,7 @@ Start with **this file only**. Then load deeper context by task — see **Implem
 | Surface UX shape | `docs/ux/README.md` |
 | Surface UX review gate | `docs/qa/feature-ux-checklist.md` |
 | Quality-gate definitions (`R-GATE-*`) | `docs/qa/feature-qa-checklist.md` |
-| Which gate runs when / adding a gate / tool conflicts | `docs/adr/ADR-SWIFT-S10-quality-gates.md` |
+| Which gate runs when / adding a gate / tool conflicts | `docs/adr/ADR-SWIFT-S11-quality-gates.md` |
 
 ## Context Loading Strategy
 
@@ -55,9 +55,9 @@ Start with **this file only**. Then load deeper context by task — see **Implem
 - Code review / understanding → `docs/conventions.md`
 - Feature development → `docs/conventions.md` + `docs/features/<FEAT>-<NN>.md`
 - New feature → `docs/conventions.md` + `ADR-SWIFT-S03` + `docs/features/template.md`
-- Touching a framework → `ADR-SWIFT-S04` + `ADR-SWIFT-S07`
-- Build / signing / release → `ADR-SWIFT-S06` + `docs/qa/feature-qa-checklist.md`
-- Adding or moving a quality gate → `ADR-SWIFT-S10`
+- Touching a framework → `ADR-SWIFT-S06` + `ADR-SWIFT-S07`
+- Build / signing / release → `ADR-SWIFT-S10` + `docs/qa/feature-qa-checklist.md`
+- Adding or moving a quality gate → `ADR-SWIFT-S11`
 - Architecture → `docs/vision.md` + `docs/idea.md` + `docs/adr/README.md`
 
 **3. Load implementation files (only when editing):**
@@ -118,9 +118,9 @@ make clean
 
 Gates are **tiered by cost** — in Swift the build *is* the typecheck and costs minutes, so a
 pre-commit hook that builds gets bypassed, and a bypassed gate is worse than none
-(ADR-SWIFT-S10).
+(ADR-SWIFT-S11).
 
-Never inline a raw `xcodebuild` invocation into a doc, a task entry, or CI — add a `Makefile` target instead (ADR-SWIFT-S06).
+Never inline a raw `xcodebuild` invocation into a doc, a task entry, or CI — add a `Makefile` target instead (ADR-SWIFT-S10).
 
 ## Workflow Process
 1. **Analyze** — understand the task (load minimal context)
@@ -189,7 +189,7 @@ Before marking complete:
 
 **`make ci` is the task-close bundle**, not `make pre-commit` — the latter is the fast inner-loop
 subset. Rule definitions and tiers: `docs/qa/feature-qa-checklist.md`. Tiering rationale:
-`docs/adr/ADR-SWIFT-S10-quality-gates.md`.
+`docs/adr/ADR-SWIFT-S11-quality-gates.md`.
 
 ---
 
@@ -199,22 +199,22 @@ subset. Rule definitions and tiers: `docs/qa/feature-qa-checklist.md`. Tiering r
 
 ## Earned rules (full context in the linked ADR)
 - **`AppDelegate` composes, it doesn't implement** — it builds `AppEnvironment` and hands off; no logic → ADR-SWIFT-S01, S05
-- **All build settings live in `.xcconfig`** — a setting in `project.pbxproj` is a setting nobody reviewed → ADR-SWIFT-S06
+- **All build settings live in `.xcconfig`** — a setting in `project.pbxproj` is a setting nobody reviewed → ADR-SWIFT-S10
 - **UI is `@MainActor`, logic is not** — annotate the type; blocking work never runs on the main actor → ADR-SWIFT-S03, S07
 - **Every legacy callback hops explicitly, on its first line** — a C/ObjC callback carries no isolation information → ADR-SWIFT-S07
 - **`DispatchQueue.main.sync` is forbidden** — deadlocks now or later, never correct → ADR-SWIFT-S07
-- **One import site per framework** — the `Live<Service>` file; contracts speak the app's types, never `AXUIElement`/`OSStatus` → ADR-SWIFT-S04
+- **One import site per framework** — the `Live<Service>` file; contracts speak the app's types, never `AXUIElement`/`OSStatus` → ADR-SWIFT-S06
 - **Never cast `NSApp.delegate`** — if an object needs it, it should have been handed it → ADR-SWIFT-S05
 - **No singletons with I/O, state, or permissions** — `static let shared` is for immutable values → ADR-SWIFT-S05
 - **Three stores, split by the text-editor test** — `UserDefaults` for app settings, a user-visible dir for hand-authored config, Application Support for generated data → ADR-SWIFT-S08
 - **Expected vs unexpected decides the response** — expected failures surface in place; unexpected ones are logged; alerts are for decisions → ADR-SWIFT-S09
 - **`os.Logger`, never `print`** — a background app has no stdout → ADR-SWIFT-S09
 - **Permission failures get a route, not a message** — a System Settings deep link, not an OK button → ADR-SWIFT-S09
-- **Gates are tiered by cost, and both git hooks are wired** — `pre-commit` fast, `pre-push` full; a bypassed gate is worse than none → ADR-SWIFT-S10
-- **One owner per concern, asserted** — where swift-format and SwiftLint overlap the formatter wins, and `make tooling-check` proves they agree → ADR-SWIFT-S10
-- **`get-task-allow` never ships** — debugger attach on a release build, and a notarization rejection → ADR-SWIFT-S06
+- **Gates are tiered by cost, and both git hooks are wired** — `pre-commit` fast, `pre-push` full; a bypassed gate is worse than none → ADR-SWIFT-S11
+- **One owner per concern, asserted** — where swift-format and SwiftLint overlap the formatter wins, and `make tooling-check` proves they agree → ADR-SWIFT-S11
+- **`get-task-allow` never ships** — debugger attach on a release build, and a notarization rejection → ADR-SWIFT-S10
 - **Write `@MainActor` and `nonisolated` explicitly** — never rely on the absence of an annotation; default isolation is a build setting → ADR-SWIFT-S07
-- **Bundle ID and `CFBundleVersion` are one-way doors** — TCC grants and update floors are keyed to them → ADR-SWIFT-S06
+- **Bundle ID and `CFBundleVersion` are one-way doors** — TCC grants and update floors are keyed to them → ADR-SWIFT-S10
 
 <!-- ============================================================================
      PROJECT-SPECIFIC SECTION — intentionally empty in the said-swift starter.

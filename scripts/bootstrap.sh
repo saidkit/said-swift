@@ -7,7 +7,7 @@
 # Copies stencils/ into place, renames MyApp -> <AppName> everywhere, and points the
 # Makefile seam and SwiftLint scope at the result. Afterwards `make ci` should be green
 # AND non-vacuous — a starter whose gates pass by inspecting nothing is worse than none
-# (ADR-SWIFT-S10 rule 6).
+# (ADR-SWIFT-S11 rule 6).
 #
 # The Xcode project it installs is not a sketch: it is the one that surfaced four
 # non-obvious failures when this layout was first built for real —
@@ -83,6 +83,6 @@ echo "    make install-hooks # pre-commit -> fast tier, pre-push -> full tier"
 echo
 echo "    Then settle MACOSX_DEPLOYMENT_TARGET in ${APP_NAME}/Build Configs/Project-Base.xcconfig"
 echo "    and set DEVELOPMENT_TEAM / SIGN_IDENTITY in the Makefile seam when you have a"
-echo "    Developer ID Application certificate (ADR-SWIFT-S06)."
+echo "    Developer ID Application certificate (ADR-SWIFT-S10)."
 echo
 echo "    stencils/ is no longer needed — delete it, or keep it to bootstrap a second target."

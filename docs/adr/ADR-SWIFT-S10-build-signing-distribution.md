@@ -1,4 +1,4 @@
-# ADR-SWIFT-S10: Build, Signing & Distribution
+# ADR-SWIFT-S11: Build, Signing & Distribution
 
 **Date:** 2026-07-25
 **Status:** Accepted
@@ -76,7 +76,7 @@ Notarization is a gate on the artifact, not a build step. It runs against an alr
 
 Every command an agent, a CI job, or a human runs is a `make` target. The `Makefile` maps the verb to a script or `xcodebuild` invocation, and each gate target carries a comment naming the `R-GATE-*` rule it answers to.
 
-**Which gate runs at which moment is ADR-SWIFT-S10's decision**, not this one. This ADR owns the *release* tier: `make validate` runs `R-GATE-SIGN` (signature, Gatekeeper, staple, entitlements asserted against the source file) and `R-GATE-HARDENING` (below) against a built bundle.
+**Which gate runs at which moment is ADR-SWIFT-S11's decision**, not this one. This ADR owns the *release* tier: `make validate` runs `R-GATE-SIGN` (signature, Gatekeeper, staple, entitlements asserted against the source file) and `R-GATE-HARDENING` (below) against a built bundle.
 
 Documentation names the `make` verb. Concrete commands live in the `Makefile`; gate definitions live in `docs/qa/feature-qa-checklist.md`. Neither is duplicated into `CLAUDE.md`.
 

@@ -55,9 +55,9 @@ project/
 2. **Features are the unit of implementation.**
    A cohesive capability lives in `<Product>/Features/<Name>/` and owns its views, view models, feature-local services, and types — see ADR-SWIFT-S03.
 3. **All build settings live in `.xcconfig`.**
-   The target's Build Settings tab must show no overrides beyond the xcconfig assignment. A setting in `project.pbxproj` is a setting nobody will review — see ADR-SWIFT-S06.
+   The target's Build Settings tab must show no overrides beyond the xcconfig assignment. A setting in `project.pbxproj` is a setting nobody will review — see ADR-SWIFT-S10.
 4. **System frameworks and external systems sit behind protocols in `Core/<Service>/`.**
-   Never call a permission-gated or process-global framework API directly from a view or view model. The protocol is the seam that makes the feature testable — see ADR-SWIFT-S04.
+   Never call a permission-gated or process-global framework API directly from a view or view model. The protocol is the seam that makes the feature testable — see ADR-SWIFT-S06.
 5. **`Core/` and `UI/` never import `Features/`.**
    The dependency direction is one-way. Because Swift compiles the app as one module the compiler will not stop you; this is enforced by review and by the folder discipline.
 6. **Resources are declarative.**
@@ -96,9 +96,9 @@ Do **not** reach for a multi-module split as the starting layout. Most macOS app
 ## Out of scope
 
 - **Feature internals** — ADR-SWIFT-S03.
-- **Service-module internals** — ADR-SWIFT-S04.
+- **Service-module internals** — ADR-SWIFT-S06.
 - **Wiring / DI** — ADR-SWIFT-S05.
-- **Build settings, signing, distribution** — ADR-SWIFT-S06.
+- **Build settings, signing, distribution** — ADR-SWIFT-S10.
 - **Where user data and settings live on disk** — ADR-SWIFT-S08 (this ADR covers the *repo*, not the *installed footprint*).
 
 ## Alternatives considered
@@ -121,7 +121,7 @@ Do **not** reach for a multi-module split as the starting layout. Most macOS app
 
 - **Stack:** [ADR-SWIFT-S02](ADR-SWIFT-S02-app-stack.md) — language, UI framework, and dependency policy this layout assumes.
 - **Feature internals:** [ADR-SWIFT-S03](ADR-SWIFT-S03-feature-structure.md) — the anatomy of `Features/<Name>/`.
-- **Service modules:** [ADR-SWIFT-S04](ADR-SWIFT-S04-pure-service-modules.md) — the `Core/<Service>/` seam.
+- **Service modules:** [ADR-SWIFT-S06](ADR-SWIFT-S06-pure-service-modules.md) — the `Core/<Service>/` seam.
 - **Dependency injection:** [ADR-SWIFT-S05](ADR-SWIFT-S05-dependency-injection.md) — how features receive services.
-- **Build & distribution:** [ADR-SWIFT-S06](ADR-SWIFT-S06-build-signing-distribution.md) — the `Build Configs/` layer and the `Makefile` facade.
+- **Build & distribution:** [ADR-SWIFT-S10](ADR-SWIFT-S10-build-signing-distribution.md) — the `Build Configs/` layer and the `Makefile` facade.
 - **Conventions:** [`../conventions.md`](../conventions.md).

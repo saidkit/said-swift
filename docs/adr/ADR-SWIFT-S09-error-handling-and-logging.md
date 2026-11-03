@@ -13,7 +13,7 @@ The second half of the problem is what to *do* with a failure. A user typing a b
 And on a user's machine there is no debugger. Whatever the app recorded at the moment of failure is the entire diagnostic surface.
 
 **Context:**
-- Permission-gated frameworks fail *silently and differently* depending on TCC state (ADR-SWIFT-S04).
+- Permission-gated frameworks fail *silently and differently* depending on TCC state (ADR-SWIFT-S06).
 - Users of a background/menu-bar app never see `stdout`; `print` is invisible in the shipped product.
 - Unified logging is queryable after the fact (`log show --predicate`) and privacy-aware by default.
 
@@ -24,7 +24,7 @@ And on a user's machine there is no debugger. Whatever the app recorded at the m
 ## Rules
 
 1. **Every `Core/` service translates at its boundary.**
-   `OSStatus`, `AXError`, `errno`, `NSError`, and vendor error types are converted into a typed Swift `Error` inside the `Live…` implementation (ADR-SWIFT-S04 rule 3). They do not escape into features.
+   `OSStatus`, `AXError`, `errno`, `NSError`, and vendor error types are converted into a typed Swift `Error` inside the `Live…` implementation (ADR-SWIFT-S06 rule 3). They do not escape into features.
 
 2. **One error enum per seam, not one for the app.**
    `ConfigError`, `RuntimeError`, `UpdateError`. A single app-wide `AppError` with thirty cases forces every handler to switch over failures it cannot encounter. Compose with a wrapping case when a boundary genuinely forwards another's failure.
@@ -64,7 +64,7 @@ And on a user's machine there is no debugger. Whatever the app recorded at the m
     Unreachable switch cases and violated preconditions in the app's own code, yes. A missing file, a failed decode, a denied permission, or a malformed server response — never. Same for force-unwrap and `try!`: each is a `fatalError` in disguise, and each is forbidden on any value that comes from outside the binary.
 
 11. **Crash reporting sits behind a contract and is opt-in.**
-    A `CrashReporter` protocol (ADR-SWIFT-S04), with the vendor SDK confined to its `Live…` implementation. Reporting is user-consented, the consent is revocable, and a DSN/endpoint inherited from a template or upstream fork must never be shipped — it sends your users' crashes to someone else.
+    A `CrashReporter` protocol (ADR-SWIFT-S06), with the vendor SDK confined to its `Live…` implementation. Reporting is user-consented, the consent is revocable, and a DSN/endpoint inherited from a template or upstream fork must never be shipped — it sends your users' crashes to someone else.
 
 12. **A user-facing error message says what happened and what to do next.**
     No error codes as the primary text, no stack traces, no "an error occurred". The code goes in the log; the sentence goes to the user.
@@ -116,7 +116,7 @@ func load() async -> ConfigLoadResult {
 
 ## Related
 
-- **Service seam:** [ADR-SWIFT-S04](ADR-SWIFT-S04-pure-service-modules.md) — where framework errors are translated.
+- **Service seam:** [ADR-SWIFT-S06](ADR-SWIFT-S06-pure-service-modules.md) — where framework errors are translated.
 - **Feature structure:** [ADR-SWIFT-S03](ADR-SWIFT-S03-feature-structure.md) — which layer handles versus surfaces a failure.
 - **Concurrency:** [ADR-SWIFT-S07](ADR-SWIFT-S07-concurrency-and-main-thread.md) — cancellation is not an error.
 - **UX gate:** [`../qa/feature-ux-checklist.md`](../qa/feature-ux-checklist.md) — error, empty, and permission-state rules.

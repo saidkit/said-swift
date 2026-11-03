@@ -1,4 +1,4 @@
-# Tooling for the quality gates (ADR-SWIFT-S10). `brew bundle` installs; `brew bundle check`
+# Tooling for the quality gates (ADR-SWIFT-S11). `brew bundle` installs; `brew bundle check`
 # verifies. Pinning lives here because neither SwiftLint nor swift-format has a config-level
 # version field — an unpinned bump can silently stop enforcing a rule.
 #

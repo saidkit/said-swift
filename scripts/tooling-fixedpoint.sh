@@ -8,7 +8,7 @@
 # literals (formatter cannot break, linter flagged length).
 #
 # Run after changing .swiftlint.yml or .swift-format, or after bumping either tool.
-# ADR-SWIFT-S10 rule 4.
+# ADR-SWIFT-S11 rule 4.
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

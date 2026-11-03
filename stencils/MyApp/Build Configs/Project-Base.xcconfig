@@ -5,7 +5,7 @@
 // place so the template ships no half-real app directory (an empty one would make
 // `make doctor` report sources present and `swiftlint` lint zero files — a vacuous pass).
 //
-// Rationale: ADR-SWIFT-S06 (all settings in xcconfig, never the target editor) and
+// Rationale: ADR-SWIFT-S10 (all settings in xcconfig, never the target editor) and
 // ADR-SWIFT-S07 (the concurrency posture these flags enforce).
 //
 //
@@ -77,7 +77,7 @@ CLANG_ANALYZER_NONNULL = YES
 CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE
 
 // Warnings-as-errors is STAGED, not global: hostile in the inner loop, essential in CI.
-// Set it in the Release/CI configuration only — see ADR-SWIFT-S10.
+// Set it in the Release/CI configuration only — see ADR-SWIFT-S11.
 // SWIFT_TREAT_WARNINGS_AS_ERRORS = YES
 // GCC_TREAT_WARNINGS_AS_ERRORS = YES
 

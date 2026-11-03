@@ -147,7 +147,7 @@ let handler: @Sendable (FileEvent) -> Void = { event in
 
 ### Bridging a callback API into a stream
 
-The recurring shape in a system-level app: a `Core/` service (ADR-SWIFT-S04) wraps a callback-based framework, converts it into an `AsyncStream`, and the feature consumes it on the main actor.
+The recurring shape in a system-level app: a `Core/` service (ADR-SWIFT-S06) wraps a callback-based framework, converts it into an `AsyncStream`, and the feature consumes it on the main actor.
 
 **This starter ships no compiled example, so treat the shape below as unverified until your own code builds it.** That is not a formality — when this pattern was first genuinely compiled in a consuming project, it produced three errors an illustrative snippet had entirely hidden:
 
@@ -167,7 +167,7 @@ The shape:
 
 ## Service modules (system frameworks behind contracts)
 
-See [ADR-SWIFT-S04](adr/ADR-SWIFT-S04-pure-service-modules.md). Short version:
+See [ADR-SWIFT-S06](adr/ADR-SWIFT-S06-pure-service-modules.md). Short version:
 
 > Every system framework and external system is reached through a protocol in `Core/<Service>/`, with a live implementation and a test double. **Exactly one file imports the framework.**
 
@@ -360,7 +360,7 @@ Swift has no path aliases, and a single-module app has no import statements betw
 folders — the dependency direction is enforced by discipline, not the compiler (ADR-SWIFT-S01).
 Keep imports minimal: an `import AppKit` in a `Services/` file is a signal that logic and UI
 have merged, and an `import` of a system framework anywhere but its `Live…` service violates
-ADR-SWIFT-S04 rule 2.
+ADR-SWIFT-S06 rule 2.
 
 ---
 
@@ -380,7 +380,7 @@ Applies equally to magic strings — defaults keys, notification names, URL sche
 
 ## Forbidden practices
 
-- **No build settings in `project.pbxproj`** — xcconfig only (ADR-SWIFT-S06).
+- **No build settings in `project.pbxproj`** — xcconfig only (ADR-SWIFT-S10).
 - **No `DispatchQueue.main.sync`** — ever.
 - **No `NSApp.delegate as!`** — the dependency should have been injected.
 - **No singletons with I/O, state, or permissions** — `static let shared` is for immutable values.
@@ -418,7 +418,7 @@ import Testing
 }
 ```
 
-- **No test needs `NSApplication`, a window, or a TCC prompt.** If one does, a dependency wasn't injected (ADR-SWIFT-S05) or a framework wasn't wrapped (ADR-SWIFT-S04).
+- **No test needs `NSApplication`, a window, or a TCC prompt.** If one does, a dependency wasn't injected (ADR-SWIFT-S05) or a framework wasn't wrapped (ADR-SWIFT-S06).
 - Prefer testing pure functions and contract translation over rendering.
 - Doubles come from `Core/<Service>/Stub…`, written alongside the contract.
 
@@ -435,7 +435,7 @@ make ci            # FULL (minutes) — + build + test; the git pre-push hook �
 
 `make install-hooks` wires both hooks. Gates are tiered by cost because in Swift the build
 *is* the typecheck and costs minutes — a hook that builds gets bypassed, and a bypassed gate
-is worse than none ([ADR-SWIFT-S10](adr/ADR-SWIFT-S10-quality-gates.md)).
+is worse than none ([ADR-SWIFT-S11](adr/ADR-SWIFT-S11-quality-gates.md)).
 
 `make` is the command facade (→ `scripts/` + `xcodebuild`); never inline an `xcodebuild` invocation in documentation. Concrete commands live in the `Makefile`; rule definitions live in the QA checklist.
 
@@ -448,9 +448,9 @@ UI-touching tasks additionally run the UX gate — [`qa/feature-ux-checklist.md`
 - [`adr/ADR-SWIFT-S01-repository-structure.md`](adr/ADR-SWIFT-S01-repository-structure.md) — repo layout, dependency direction
 - [`adr/ADR-SWIFT-S02-app-stack.md`](adr/ADR-SWIFT-S02-app-stack.md) — Swift 6, AppKit+SwiftUI, dependency policy
 - [`adr/ADR-SWIFT-S03-feature-structure.md`](adr/ADR-SWIFT-S03-feature-structure.md) — feature anatomy
-- [`adr/ADR-SWIFT-S04-pure-service-modules.md`](adr/ADR-SWIFT-S04-pure-service-modules.md) — the framework seam
+- [`adr/ADR-SWIFT-S06-pure-service-modules.md`](adr/ADR-SWIFT-S06-pure-service-modules.md) — the framework seam
 - [`adr/ADR-SWIFT-S05-dependency-injection.md`](adr/ADR-SWIFT-S05-dependency-injection.md) — `AppEnvironment`, `Deps`
-- [`adr/ADR-SWIFT-S06-build-signing-distribution.md`](adr/ADR-SWIFT-S06-build-signing-distribution.md) — xcconfig, `make`, notarization
+- [`adr/ADR-SWIFT-S10-build-signing-distribution.md`](adr/ADR-SWIFT-S10-build-signing-distribution.md) — xcconfig, `make`, notarization
 - [`adr/ADR-SWIFT-S07-concurrency-and-main-thread.md`](adr/ADR-SWIFT-S07-concurrency-and-main-thread.md) — isolation rules
 - [`adr/ADR-SWIFT-S08-settings-and-data-storage.md`](adr/ADR-SWIFT-S08-settings-and-data-storage.md) — the three stores
 - [`adr/ADR-SWIFT-S09-error-handling-and-logging.md`](adr/ADR-SWIFT-S09-error-handling-and-logging.md) — errors, logging, alerts

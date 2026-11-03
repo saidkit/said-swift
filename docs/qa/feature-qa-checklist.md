@@ -14,7 +14,7 @@ Each rule carries five fields:
 
 - **id** — stable handle the QA report / commits / `Refs:` lines cite (`R-GATE-BUILD`, …).
 - **source** — canonical source (ADR file or runtime convention).
-- **tier** — when it runs: `pre-commit` (seconds) · `ci` (minutes) · `release` (needs a built bundle) · `opt-in`. Tiering rationale: [ADR-SWIFT-S10](../adr/ADR-SWIFT-S10-quality-gates.md).
+- **tier** — when it runs: `pre-commit` (seconds) · `ci` (minutes) · `release` (needs a built bundle) · `opt-in`. Tiering rationale: [ADR-SWIFT-S11](../adr/ADR-SWIFT-S11-quality-gates.md).
 - **applies-to** — which task shapes the rule fires for. `any` fires on every task.
 - **summary** — one-line statement.
 - **verify** — concrete action.
@@ -28,7 +28,7 @@ Gate `verify:` actions invoke **`make <target>`**. The resolution chain is
 `Makefile` comments and the rules below in sync.
 
 Never inline a raw `xcodebuild` invocation into a doc, a task entry, or CI — it duplicates
-ground truth in a place that will drift (ADR-SWIFT-S06).
+ground truth in a place that will drift (ADR-SWIFT-S10).
 
 ## Bundles
 
@@ -41,7 +41,7 @@ make validate      # RELEASE         — R-GATE-SIGN → R-GATE-HARDENING
 **`make ci` is the task-close bundle.** `make pre-commit` is the inner-loop subset wired to the
 git `pre-commit` hook; `make ci` is wired to `pre-push`. `make install-hooks` wires both — a
 project that installs only the fast hook has moved broken builds to the remote, not removed
-them (ADR-SWIFT-S10).
+them (ADR-SWIFT-S11).
 
 ---
 
@@ -96,7 +96,7 @@ them (ADR-SWIFT-S10).
 
 ## R-GATE-SIGN — Signature and Gatekeeper clean
 
-- **source:** [ADR-SWIFT-S06](../adr/ADR-SWIFT-S06-build-signing-distribution.md)
+- **source:** [ADR-SWIFT-S10](../adr/ADR-SWIFT-S10-build-signing-distribution.md)
 - **tier:** `release`
 - **applies-to:** `release` — any task that touches signing identity, entitlements,
   `Info.plist`, bundle identifier, hardened runtime, or the release chain
@@ -132,7 +132,7 @@ them (ADR-SWIFT-S10).
 ## R-GATE-DEPS — No unreviewed dependency or entitlement growth
 
 - **source:** [ADR-SWIFT-S02](../adr/ADR-SWIFT-S02-app-stack.md) dependency policy,
-  [ADR-SWIFT-S06](../adr/ADR-SWIFT-S06-build-signing-distribution.md) entitlement audit
+  [ADR-SWIFT-S10](../adr/ADR-SWIFT-S10-build-signing-distribution.md) entitlement audit
 - **tier:** `ci`
 - **applies-to:** `any` task that adds a package, framework, or entitlement
 - **summary:** a new dependency clears the four-point bar; a new entitlement is justified in
@@ -143,7 +143,7 @@ them (ADR-SWIFT-S10).
 
 ## R-GATE-HARDENING — Shipped bundle is hardened
 
-- **source:** [ADR-SWIFT-S06](../adr/ADR-SWIFT-S06-build-signing-distribution.md) § Hardening the shipped bundle
+- **source:** [ADR-SWIFT-S10](../adr/ADR-SWIFT-S10-build-signing-distribution.md) § Hardening the shipped bundle
 - **tier:** `release`
 - **applies-to:** `release` — any task touching entitlements, `Info.plist`, signing, or the release chain
 - **summary:** the built bundle carries no debug-attach entitlement, has the hardened-runtime
@@ -163,7 +163,7 @@ them (ADR-SWIFT-S10).
 
 ## R-GATE-SECRETS — No secrets committed *(opt-in)*
 
-- **source:** [ADR-SWIFT-S10](../adr/ADR-SWIFT-S10-quality-gates.md) rule 10
+- **source:** [ADR-SWIFT-S11](../adr/ADR-SWIFT-S11-quality-gates.md) rule 10
 - **tier:** `opt-in` (promote to `ci` once the tool is installed)
 - **applies-to:** `any`
 - **summary:** no credentials, tokens, or keys in the working tree or history.
@@ -175,7 +175,7 @@ them (ADR-SWIFT-S10).
 
 ## R-GATE-DEADCODE — No unreachable code *(opt-in)*
 
-- **source:** [ADR-SWIFT-S10](../adr/ADR-SWIFT-S10-quality-gates.md)
+- **source:** [ADR-SWIFT-S11](../adr/ADR-SWIFT-S11-quality-gates.md)
 - **tier:** `opt-in` (promote to `ci` once the tool is installed)
 - **applies-to:** `any`
 - **summary:** no unused declarations left behind by a refactor.
@@ -187,7 +187,7 @@ them (ADR-SWIFT-S10).
 
 ## R-GATE-TOOLING — The formatter and the linter agree
 
-- **source:** [ADR-SWIFT-S10](../adr/ADR-SWIFT-S10-quality-gates.md) rule 4
+- **source:** [ADR-SWIFT-S11](../adr/ADR-SWIFT-S11-quality-gates.md) rule 4
 - **tier:** `on config change` — after editing `.swiftlint.yml` / `.swift-format`, or bumping either tool
 - **applies-to:** any task touching either config or the `Brewfile`
 - **summary:** `swift-format` is idempotent, and its output passes `swiftlint --strict` — so

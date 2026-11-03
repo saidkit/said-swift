@@ -1,10 +1,10 @@
-# said-swift — command facade (ADR-SWIFT-S06, tiering per ADR-SWIFT-S10)
+# said-swift — command facade (ADR-SWIFT-S10, tiering per ADR-SWIFT-S11)
 #
 # `make` is the stable verb for humans, CI, and agents. Gate targets carry the R-GATE-*
 # rule they answer to; rule definitions live in docs/qa/feature-qa-checklist.md.
 # Never inline a raw xcodebuild invocation into a doc, a task entry, or CI — put it here.
 #
-# TIERS (ADR-SWIFT-S10) — named for WHEN they run:
+# TIERS (ADR-SWIFT-S11) — named for WHEN they run:
 #   make pre-commit   seconds   format-check + lint       → .git pre-commit hook
 #   make ci           minutes   + build + test            → .git pre-push hook, CI
 #   make validate     release   signature + hardening     → on the built bundle
@@ -23,7 +23,7 @@ BUILD_DIR     ?= $(APP_ROOT)/build
 TEST_SOURCES  ?= $(APP_ROOT)/$(APP_NAME)Tests
 ENTITLEMENTS  ?= $(APP_SOURCES)/Supporting/$(APP_NAME).entitlements
 
-# Hardened-runtime exceptions this project has justified IN WRITING (ADR-SWIFT-S06).
+# Hardened-runtime exceptions this project has justified IN WRITING (ADR-SWIFT-S10).
 # Empty by default: R-GATE-HARDENING fails on any exception not listed here. Add a key
 # only alongside an ADR or task entry saying why. `get-task-allow` is never allowlistable.
 HARDENING_ALLOW ?=
@@ -31,7 +31,7 @@ HARDENING_ALLOW ?=
 # Signing. Empty until a Developer ID Application certificate exists — `make doctor`
 # reports readiness. SIGN_IDENTITY must be copied VERBATIM from
 # `security find-identity -v -p codesigning`, including any trailing punctuation in the
-# registered entity name (ADR-SWIFT-S06). NOTARY_PROFILE is a keychain profile created by
+# registered entity name (ADR-SWIFT-S10). NOTARY_PROFILE is a keychain profile created by
 # `xcrun notarytool store-credentials`.
 DEVELOPMENT_TEAM ?=
 SIGN_IDENTITY    ?=
@@ -97,7 +97,7 @@ doctor:
 	  if [ -n "$(NOTARY_PROFILE)" ] && xcrun notarytool history --keychain-profile "$(NOTARY_PROFILE)" >/dev/null 2>&1; \
 	  then echo "keychain profile '$(NOTARY_PROFILE)' works"; \
 	  else echo "NOT configured — xcrun notarytool store-credentials <name>"; fi
-	@echo "release     : NOT WIRED — see ADR-SWIFT-S06 for the required chain"
+	@echo "release     : NOT WIRED — see ADR-SWIFT-S10 for the required chain"
 
 guard-workspace:
 	@test -d "$(WORKSPACE)" || { \
@@ -240,7 +240,7 @@ install-hooks:
 clean:
 	rm -rf "$(BUILD_DIR)"
 
-## notarize: zip -> notarytool submit --wait -> staple -> validate (ADR-SWIFT-S06)
+## notarize: zip -> notarytool submit --wait -> staple -> validate (ADR-SWIFT-S10)
 notarize: guard-bundle
 	@test -n "$(NOTARY_PROFILE)" || { \
 	  echo "error: NOTARY_PROFILE is empty. Create one first:"; \
@@ -259,9 +259,9 @@ notarize: guard-bundle
 	xcrun stapler staple "$(BUNDLE)"
 	$(MAKE) --no-print-directory validate
 
-## release: NOT WIRED — the chain is specified in ADR-SWIFT-S06, not yet scripted
+## release: NOT WIRED — the chain is specified in ADR-SWIFT-S10, not yet scripted
 release:
-	@echo "release is not wired yet. ADR-SWIFT-S06 specifies the required order:"
+	@echo "release is not wired yet. ADR-SWIFT-S10 specifies the required order:"
 	@echo "  clean -> build -c Release -> validate -> notarytool submit --wait -> stapler staple -> archive"
 	@echo "Implement it as a script under scripts/ and point this target at it."
 	@exit 1

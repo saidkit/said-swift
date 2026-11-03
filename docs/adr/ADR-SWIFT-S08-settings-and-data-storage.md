@@ -33,7 +33,7 @@ If the user edits it by hand, it is user configuration. If only the app writes i
    Not a JSON file, not YAML in the config directory. `UserDefaults` provides managed/forced preferences (MDM, configuration profiles), `defaults read`/`defaults write` tooling, and per-domain isolation for free. A file has no equivalent for the first, and reimplementing it is not worth doing.
 
 2. **`UserDefaults` is reached through one typed facade.**
-   A `SettingsService` (ADR-SWIFT-S04) owns the keys and the types. `UserDefaults.standard` appears in exactly one implementation file. Scattered string keys are how two features end up disagreeing about a default value.
+   A `SettingsService` (ADR-SWIFT-S06) owns the keys and the types. `UserDefaults.standard` appears in exactly one implementation file. Scattered string keys are how two features end up disagreeing about a default value.
 
 3. **Register defaults; never scatter fallbacks.**
    `register(defaults:)` at launch, in one place. A `?? false` at each read site means the default is defined N times and will diverge.
@@ -66,7 +66,7 @@ Under App Sandbox these paths become container-relative and a user-chosen config
 ## Out of scope
 
 - **The repository layout** — ADR-SWIFT-S01 (this ADR is the *installed* footprint).
-- **The service protocol shape for `SettingsService`** — ADR-SWIFT-S04.
+- **The service protocol shape for `SettingsService`** — ADR-SWIFT-S06.
 - **The settings UI** — a feature concern (ADR-SWIFT-S03) and a UX shape spec.
 
 ## Alternatives considered
@@ -87,7 +87,7 @@ Under App Sandbox these paths become container-relative and a user-chosen config
 
 ## Related
 
-- **Service seam:** [ADR-SWIFT-S04](ADR-SWIFT-S04-pure-service-modules.md) — the typed `SettingsService` facade.
+- **Service seam:** [ADR-SWIFT-S06](ADR-SWIFT-S06-pure-service-modules.md) — the typed `SettingsService` facade.
 - **Injection:** [ADR-SWIFT-S05](ADR-SWIFT-S05-dependency-injection.md) rule 9 — why `UserDefaults.standard` is not read from features.
 - **Repository layout:** [ADR-SWIFT-S01](ADR-SWIFT-S01-repository-structure.md) — the *repo*, as distinct from the installed footprint.
 - **Instance:** record your product's concrete three-store layout as a project ADR (`ADR-SWIFT-00x`) and link it here.

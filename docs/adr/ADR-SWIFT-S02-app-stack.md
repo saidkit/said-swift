@@ -31,7 +31,7 @@ The stack decision also has to survive Swift 6's concurrency checking, which is 
 | Persistence | `UserDefaults` + files | see ADR-SWIFT-S08. No Core Data / SwiftData without a relational need |
 | Logging | **`os.Logger`** (unified logging) | never `print` in shipped code (ADR-SWIFT-S09) |
 | Tests | **Swift Testing** (`import Testing`) for new tests; XCTest for UI tests and inherited suites | changes how test code is written, so it is a stack choice |
-| Lint / format / gates | **SwiftLint** + **`swift-format`** | tiering, tool rationale, and the conflict rule → [ADR-SWIFT-S10](ADR-SWIFT-S10-quality-gates.md) |
+| Lint / format / gates | **SwiftLint** + **`swift-format`** | tiering, tool rationale, and the conflict rule → [ADR-SWIFT-S11](ADR-SWIFT-S11-quality-gates.md) |
 | Dependencies | **SPM**; none by default | CocoaPods only when inherited from a vendored tree |
 
 ### Why AppKit is the shell, not SwiftUI
@@ -62,9 +62,9 @@ Sparkle (updates) and a crash reporter typically clear this bar. UI convenience 
 ## Out of scope
 
 - **Concurrency mechanics and the main-thread boundary** — ADR-SWIFT-S07.
-- **Which gate runs when, and how the tools are kept from fighting** — ADR-SWIFT-S10.
+- **Which gate runs when, and how the tools are kept from fighting** — ADR-SWIFT-S11.
 - **Where state is persisted** — ADR-SWIFT-S08.
-- **Signing / notarization consequences of a dependency** — ADR-SWIFT-S06.
+- **Signing / notarization consequences of a dependency** — ADR-SWIFT-S10.
 
 ## Alternatives considered
 

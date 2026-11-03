@@ -1,5 +1,5 @@
 #!/bin/sh
-# Fast tier — seconds. ADR-SWIFT-S10.
+# Fast tier — seconds. ADR-SWIFT-S11.
 # Deliberately does NOT build or test: in Swift the build IS the typecheck and costs
 # minutes. A hook that slow gets bypassed with --no-verify, and a bypassed gate is worse
 # than no gate. The build/test tier runs on pre-push instead.

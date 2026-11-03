@@ -59,7 +59,7 @@ make install-hooks  # wire both git hooks
 make scan           # opt-in: gitleaks + periphery
 ```
 
-**Tiered by cost** (ADR-SWIFT-S10): in Swift the build *is* the typecheck and costs minutes,
+**Tiered by cost** (ADR-SWIFT-S11): in Swift the build *is* the typecheck and costs minutes,
 so a pre-commit hook that builds gets bypassed — and a bypassed gate is worse than none,
 because the project still believes it is protected.
 

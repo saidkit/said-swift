@@ -85,7 +85,7 @@ protocol *and* its requirements, or the service seam silently collapses onto the
 
 ## The bridging pattern
 
-The recurring shape in a system-level app: a `Core/` service (ADR-SWIFT-S04) wraps a callback-based framework, converts it into an `AsyncStream`, and the feature consumes it on the main actor. The unknown-thread callback is contained in one file; the feature sees a typed, cancellable, main-actor stream.
+The recurring shape in a system-level app: a `Core/` service (ADR-SWIFT-S06) wraps a callback-based framework, converts it into an `AsyncStream`, and the feature consumes it on the main actor. The unknown-thread callback is contained in one file; the feature sees a typed, cancellable, main-actor stream.
 
 **This starter ships no compiled example — treat the shape below as unverified until your own code builds it.** When the pattern was first genuinely compiled in a consuming project it produced three errors that a written example had concealed:
 
@@ -123,6 +123,6 @@ Teardown belongs to the stream: cancelling the consuming task removes the observ
 
 - **Stack:** [ADR-SWIFT-S02](ADR-SWIFT-S02-app-stack.md) — where strict concurrency is turned on.
 - **Feature structure:** [ADR-SWIFT-S03](ADR-SWIFT-S03-feature-structure.md) — the folder split that mirrors this boundary.
-- **Service modules:** [ADR-SWIFT-S04](ADR-SWIFT-S04-pure-service-modules.md) — where legacy callbacks are contained.
+- **Service modules:** [ADR-SWIFT-S06](ADR-SWIFT-S06-pure-service-modules.md) — where legacy callbacks are contained.
 - **Dependency injection:** [ADR-SWIFT-S05](ADR-SWIFT-S05-dependency-injection.md) — why `Deps` closures are `@Sendable`.
 - **Conventions:** [`../conventions.md`](../conventions.md).
