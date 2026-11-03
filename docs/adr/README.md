@@ -14,6 +14,7 @@ Two classes live here:
 | ADR-SWIFT-S01-repository-structure.md | Understand where code goes (app target layout, xcconfig, dependency direction) |
 | ADR-SWIFT-S02-app-stack.md | Choose / understand the stack (Swift 6, AppKit shell + SwiftUI content, dependency policy) |
 | ADR-SWIFT-S03-feature-structure.md | Lay out a feature's internals (Views / State / Services, the `@MainActor` boundary) |
+| ADR-SWIFT-S04-versions-and-upgrades.md | Stamp or read the starter's release; walk its upgrade playbooks |
 | ADR-SWIFT-S05-dependency-injection.md | Wire dependencies (`AppEnvironment`, per-feature `Deps`, no singletons) |
 | ADR-SWIFT-S06-pure-service-modules.md | Wrap a system framework or external system behind a contract |
 | ADR-SWIFT-S07-concurrency-and-main-thread.md | Cross an isolation boundary, bridge a callback, or keep work off the main thread |
@@ -31,6 +32,7 @@ Two classes live here:
 | ADR-SWIFT-S01-repository-structure.md | Repository structure (app target layout; settings in xcconfig; one-way dependency direction) |
 | ADR-SWIFT-S02-app-stack.md | App stack (Swift 6 strict concurrency; AppKit shell with SwiftUI content; near-zero dependencies) |
 | ADR-SWIFT-S03-feature-structure.md | Feature structure (feature anatomy along the `@MainActor` boundary) |
+| ADR-SWIFT-S04-versions-and-upgrades.md | Versions and upgrades (the stamp, the CHANGELOG, the `upgrade/` playbooks) |
 | ADR-SWIFT-S05-dependency-injection.md | Dependency injection (`AppDelegate` composition root; `AppEnvironment`; per-feature `Deps`) |
 | ADR-SWIFT-S06-pure-service-modules.md | Pure service modules (system frameworks and external systems behind contracts) |
 | ADR-SWIFT-S07-concurrency-and-main-thread.md | Concurrency & the main-thread boundary (actor isolation; explicit hops from legacy callbacks) |
