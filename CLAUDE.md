@@ -2,17 +2,21 @@
 
 ## Lane
 
-**SAID lane:** single — this project is one lane.
+A **lane** is a tree that owns a full SAID cycle: its own feature specs, task log, working dir and ADRs. A lane is **not a mount**: a project may build into several mounts and remain one lane. This project is one lane and single-app (no app segment in the task id); `scripts/` and `stencils/` are tooling, not lane code. Single-lane work is `said!`; `flow!` is for a feature spanning **two or more task logs**, which this project does not have.
 
-- **Docs root** — `docs/`
-- **Code mount(s)** — the app target (`scripts/`, `stencils/` are tooling, not lane code)
-- **Feature spec** — `docs/features/<id>.md`
-- **Task log** — `docs/features/<id>.tasks.md` (flat)
-- **Working dir** — `docs/working/<id>/`
-- **Task-id shape** — per `docs/features/template-tasks.md` stencil (`<FEAT>`) — no app segment; this starter is single-app
-- **ADR prefix** — `ADR-SWIFT-*` (system tier `-SNN-`)
-
-A **lane** is a tree that owns a full SAID cycle — its own feature specs, task log, working dir and ADRs. A lane is **not a mount**: a project may build into several mounts and remain one lane. Single-lane work is `said!`; `flow!` is for a feature spanning **two or more task logs**, which this project does not have.
+- SAID.lane:         said-swift
+- SAID.starter:      said-swift@0.1.0
+- SAID.docs-root:    docs/
+- SAID.mounts:       [<Product>/]
+- SAID.feature-spec: docs/features/<id>.md
+- SAID.task-log:     docs/features/<id>.tasks.md
+- SAID.working:      docs/working/<id>/
+- SAID.id-shape:     <FEAT>-<NN>
+- SAID.adr-prefix:   ADR-SWIFT-*
+- SAID.surface:      native
+- SAID.reviewers:    none
+- SAID.commands:     make ci
+- SAID.profile:      code
 
 ## Project Overview
 **Project**: <PROJECT> — <one line: what this app is>
