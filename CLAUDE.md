@@ -5,7 +5,8 @@
 A **lane** is a tree that owns a full SAID cycle: its own feature specs, task log, working dir and ADRs. A lane is **not a mount**: a project may build into several mounts and remain one lane. This project is one lane and single-app (no app segment in the task id); `scripts/` and `stencils/` are tooling, not lane code. Single-lane work is `said!`; `flow!` is for a feature spanning **two or more task logs**, which this project does not have.
 
 - SAID.lane:         said-swift
-- SAID.starter:      said-swift@0.1.0
+- SAID.version:      said@0.26.0
+- SAID.starter:      said-swift@0.2.0
 - SAID.docs-root:    docs/
 - SAID.mounts:       [<Product>/]
 - SAID.feature-spec: docs/features/<id>.md
@@ -14,7 +15,7 @@ A **lane** is a tree that owns a full SAID cycle: its own feature specs, task lo
 - SAID.id-shape:     <FEAT>-<NN>
 - SAID.adr-prefix:   ADR-SWIFT-*
 - SAID.surface:      native
-- SAID.reviewers:    none
+- SAID.reviewers:    [native-build]
 - SAID.commands:     make ci
 - SAID.profile:      code
 
@@ -202,23 +203,23 @@ subset. Rule definitions and tiers: `docs/qa/feature-qa-checklist.md`. Tiering r
 ---
 
 ## Earned rules (full context in the linked ADR)
-- **`AppDelegate` composes, it doesn't implement** — it builds `AppEnvironment` and hands off; no logic → ADR-SWIFT-S01, S05
-- **All build settings live in `.xcconfig`** — a setting in `project.pbxproj` is a setting nobody reviewed → ADR-SWIFT-S10
-- **UI is `@MainActor`, logic is not** — annotate the type; blocking work never runs on the main actor → ADR-SWIFT-S03, S07
-- **Every legacy callback hops explicitly, on its first line** — a C/ObjC callback carries no isolation information → ADR-SWIFT-S07
-- **`DispatchQueue.main.sync` is forbidden** — deadlocks now or later, never correct → ADR-SWIFT-S07
-- **One import site per framework** — the `Live<Service>` file; contracts speak the app's types, never `AXUIElement`/`OSStatus` → ADR-SWIFT-S06
-- **Never cast `NSApp.delegate`** — if an object needs it, it should have been handed it → ADR-SWIFT-S05
-- **No singletons with I/O, state, or permissions** — `static let shared` is for immutable values → ADR-SWIFT-S05
-- **Three stores, split by the text-editor test** — `UserDefaults` for app settings, a user-visible dir for hand-authored config, Application Support for generated data → ADR-SWIFT-S08
-- **Expected vs unexpected decides the response** — expected failures surface in place; unexpected ones are logged; alerts are for decisions → ADR-SWIFT-S09
-- **`os.Logger`, never `print`** — a background app has no stdout → ADR-SWIFT-S09
-- **Permission failures get a route, not a message** — a System Settings deep link, not an OK button → ADR-SWIFT-S09
-- **Gates are tiered by cost, and both git hooks are wired** — `pre-commit` fast, `pre-push` full; a bypassed gate is worse than none → ADR-SWIFT-S11
-- **One owner per concern, asserted** — where swift-format and SwiftLint overlap the formatter wins, and `make tooling-check` proves they agree → ADR-SWIFT-S11
-- **`get-task-allow` never ships** — debugger attach on a release build, and a notarization rejection → ADR-SWIFT-S10
-- **Write `@MainActor` and `nonisolated` explicitly** — never rely on the absence of an annotation; default isolation is a build setting → ADR-SWIFT-S07
-- **Bundle ID and `CFBundleVersion` are one-way doors** — TCC grants and update floors are keyed to them → ADR-SWIFT-S10
+- **R-SWIFT-01** — **`AppDelegate` composes, it doesn't implement** — it builds `AppEnvironment` and hands off; no logic (also ADR-SWIFT-S05) → docs/adr/ADR-SWIFT-S01-repository-structure.md
+- **R-SWIFT-02** — **All build settings live in `.xcconfig`** — a setting in `project.pbxproj` is a setting nobody reviewed → docs/adr/ADR-SWIFT-S10-build-signing-distribution.md
+- **R-SWIFT-03** — **UI is `@MainActor`, logic is not** — annotate the type; blocking work never runs on the main actor (also ADR-SWIFT-S07) → docs/adr/ADR-SWIFT-S03-feature-structure.md
+- **R-SWIFT-04** — **Every legacy callback hops explicitly, on its first line** — a C/ObjC callback carries no isolation information → docs/adr/ADR-SWIFT-S07-concurrency-and-main-thread.md
+- **R-SWIFT-05** — **`DispatchQueue.main.sync` is forbidden** — deadlocks now or later, never correct → docs/adr/ADR-SWIFT-S07-concurrency-and-main-thread.md
+- **R-SWIFT-06** — **One import site per framework** — the `Live<Service>` file; contracts speak the app's types, never `AXUIElement`/`OSStatus` → docs/adr/ADR-SWIFT-S06-pure-service-modules.md
+- **R-SWIFT-07** — **Never cast `NSApp.delegate`** — if an object needs it, it should have been handed it → docs/adr/ADR-SWIFT-S05-dependency-injection.md
+- **R-SWIFT-08** — **No singletons with I/O, state, or permissions** — `static let shared` is for immutable values → docs/adr/ADR-SWIFT-S05-dependency-injection.md
+- **R-SWIFT-09** — **Three stores, split by the text-editor test** — `UserDefaults` for app settings, a user-visible dir for hand-authored config, Application Support for generated data → docs/adr/ADR-SWIFT-S08-settings-and-data-storage.md
+- **R-SWIFT-10** — **Expected vs unexpected decides the response** — expected failures surface in place; unexpected ones are logged; alerts are for decisions → docs/adr/ADR-SWIFT-S09-error-handling-and-logging.md
+- **R-SWIFT-11** — **`os.Logger`, never `print`** — a background app has no stdout → docs/adr/ADR-SWIFT-S09-error-handling-and-logging.md
+- **R-SWIFT-12** — **Permission failures get a route, not a message** — a System Settings deep link, not an OK button → docs/adr/ADR-SWIFT-S09-error-handling-and-logging.md
+- **R-SWIFT-13** — **Gates are tiered by cost, and both git hooks are wired** — `pre-commit` fast, `pre-push` full; a bypassed gate is worse than none → docs/adr/ADR-SWIFT-S11-quality-gates.md
+- **R-SWIFT-14** — **One owner per concern, asserted** — where swift-format and SwiftLint overlap the formatter wins, and `make tooling-check` proves they agree → docs/adr/ADR-SWIFT-S11-quality-gates.md
+- **R-SWIFT-15** — **`get-task-allow` never ships** — debugger attach on a release build, and a notarization rejection → docs/adr/ADR-SWIFT-S10-build-signing-distribution.md
+- **R-SWIFT-16** — **Write `@MainActor` and `nonisolated` explicitly** — never rely on the absence of an annotation; default isolation is a build setting → docs/adr/ADR-SWIFT-S07-concurrency-and-main-thread.md
+- **R-SWIFT-17** — **Bundle ID and `CFBundleVersion` are one-way doors** — TCC grants and update floors are keyed to them → docs/adr/ADR-SWIFT-S10-build-signing-distribution.md
 
 <!-- ============================================================================
      PROJECT-SPECIFIC SECTION — intentionally empty in the said-swift starter.
