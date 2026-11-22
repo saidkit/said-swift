@@ -2,7 +2,7 @@
 
 > The non-UX quality contract: project-wide gates expressed as `R-GATE-*` rules.
 > Companion to [`feature-ux-checklist.md`](feature-ux-checklist.md) (visual / interaction /
-> platform-behaviour rules). Consumed by `/said:review-qa` (Phase 3.5 hygiene gate) and by
+> platform-behaviour rules). Consumed by `/said:review-qa` (Inspect's hygiene gate) and by
 > `make pre-commit`.
 >
 > **This file is the only place gate `verify:` actions live.** `CLAUDE.md` names the
