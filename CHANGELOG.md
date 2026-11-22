@@ -2,6 +2,11 @@
 
 The releases of this Swift / AppKit macOS SAID starter, newest first. A cloned project records which release it is based on in its `## Lane` block (`SAID.starter:`); this file says what each release is. Versions follow [semver](https://semver.org/).
 
+## said-swift@0.3.0 - 2026-11-22
+
+- The `## Lane` block is stamped `said@0.28.0`.
+- The SAID phases are named Scope, Act, Inspect, Debrief in the workflow section; the numbered phases are gone. `review-qa` is Inspect's hygiene gate in the QA checklist.
+
 ## said-swift@0.2.0 - 2026-11-04
 
 - The `## Lane` block is stamped `said@0.26.0`: the lane passes the said upgrade checks up to that release.
